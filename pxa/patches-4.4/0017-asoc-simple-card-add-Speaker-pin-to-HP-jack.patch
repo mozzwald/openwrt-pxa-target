@@ -1,0 +1,29 @@
+From a294247ec11b3b46613f5f04f352e17bb4218726 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Feb 2016 19:56:20 -0800
+Subject: [PATCH 17/19] asoc: simple-card: add 'Speaker' pin to HP jack
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ sound/soc/generic/simple-card.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/sound/soc/generic/simple-card.c b/sound/soc/generic/simple-card.c
+index 54c3320..81d543c 100644
+--- a/sound/soc/generic/simple-card.c
++++ b/sound/soc/generic/simple-card.c
+@@ -117,6 +117,11 @@ static struct snd_soc_jack_pin simple_card_hp_jack_pins[] = {
+ 		.pin = "Headphones",
+ 		.mask = SND_JACK_HEADPHONE,
+ 	},
++	{
++		.pin = "Speaker",
++		.mask = SND_JACK_HEADPHONE,
++		.invert = 1,
++	}
+ };
+ static struct snd_soc_jack_gpio simple_card_hp_jack_gpio = {
+ 	.name = "Headphone detection",
+-- 
+1.7.10.4
+

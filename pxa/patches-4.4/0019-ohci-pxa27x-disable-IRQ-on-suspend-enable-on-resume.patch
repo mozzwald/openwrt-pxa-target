@@ -1,0 +1,38 @@
+From 24cf0746d3775dff9202b76a9f00bb28b54e9e84 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Feb 2016 20:41:44 -0800
+Subject: [PATCH 19/19] ohci-pxa27x: disable IRQ on suspend, enable on resume
+
+Otherwise driver gets a spurious interrupt on resume and
+disables the IRQ
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/usb/host/ohci-pxa27x.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/usb/host/ohci-pxa27x.c b/drivers/usb/host/ohci-pxa27x.c
+index ba1bec7..13022d2 100644
+--- a/drivers/usb/host/ohci-pxa27x.c
++++ b/drivers/usb/host/ohci-pxa27x.c
+@@ -564,6 +564,8 @@ static int ohci_hcd_pxa27x_drv_suspend(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	disable_irq(hcd->irq);
++
+ 	pxa27x_stop_hc(pxa_ohci, dev);
+ 	return ret;
+ }
+@@ -587,6 +589,8 @@ static int ohci_hcd_pxa27x_drv_resume(struct device *dev)
+ 	/* Select Power Management Mode */
+ 	pxa27x_ohci_select_pmm(pxa_ohci, inf->port_mode);
+ 
++	enable_irq(hcd->irq);
++
+ 	ohci_resume(hcd, false);
+ 	return 0;
+ }
+-- 
+1.7.10.4
+

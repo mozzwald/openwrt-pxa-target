@@ -1,0 +1,193 @@
+From 6e2e243d83207122a9a36cd5cda23eb6e004f270 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Feb 2016 19:57:26 -0800
+Subject: [PATCH 06/19] pxa27x_udc: add ability to work without D+ gpio and
+ usb_mode switch
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/usb/gadget/udc/pxa27x_udc.c |   96 +++++++++++++++++++++++++++++++++--
+ 1 file changed, 91 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/usb/gadget/udc/pxa27x_udc.c b/drivers/usb/gadget/udc/pxa27x_udc.c
+index 1ecf6e5..4c74a7f 100644
+--- a/drivers/usb/gadget/udc/pxa27x_udc.c
++++ b/drivers/usb/gadget/udc/pxa27x_udc.c
+@@ -1406,6 +1406,7 @@ static int pxa_ep_enable(struct usb_ep *_ep,
+ 		return -EINVAL;
+ 
+ 	udc_usb_ep = container_of(_ep, struct udc_usb_ep, usb_ep);
++
+ 	if (udc_usb_ep->pxa_ep) {
+ 		ep = udc_usb_ep->pxa_ep;
+ 		ep_warn(ep, "usb_ep %s already enabled, doing nothing\n",
+@@ -1513,6 +1514,15 @@ static void dplus_pullup(struct pxa_udc *udc, int on)
+ 			udc->udc_command(PXA2XX_UDC_CMD_CONNECT);
+ 		else
+ 			udc->udc_command(PXA2XX_UDC_CMD_DISCONNECT);
++	} else {
++		u32 v = udc_readl(udc, UP2OCR);
++		if (on)
++			v |= UP2OCR_DPPUE;
++		else
++			v &= ~(UP2OCR_DPPUE);
++		/* change D+ only if port is switch to device mode */
++		if (!(v & UP2OCR_HXS))
++			udc_writel(udc, UP2OCR, v);
+ 	}
+ 	udc->pullup_on = on;
+ }
+@@ -1603,9 +1613,6 @@ static int pxa_udc_pullup(struct usb_gadget *_gadget, int is_active)
+ {
+ 	struct pxa_udc *udc = to_gadget_udc(_gadget);
+ 
+-	if (!udc->gpiod && !udc->udc_command)
+-		return -EOPNOTSUPP;
+-
+ 	dplus_pullup(udc, is_active);
+ 
+ 	if (should_enable_udc(udc))
+@@ -1697,6 +1704,7 @@ static void udc_disable(struct pxa_udc *udc)
+ 
+ 	ep0_idle(udc);
+ 	udc->gadget.speed = USB_SPEED_UNKNOWN;
++
+ 	clk_disable(udc->clk);
+ 
+ 	udc->enabled = 0;
+@@ -1806,6 +1814,7 @@ static int pxa27x_udc_start(struct usb_gadget *g,
+ 
+ 	/* first hook up the driver ... */
+ 	udc->driver = driver;
++	dplus_pullup(udc, 1);
+ 
+ 	if (!IS_ERR_OR_NULL(udc->transceiver)) {
+ 		retval = otg_set_peripheral(udc->transceiver->otg,
+@@ -1858,6 +1867,7 @@ static int pxa27x_udc_stop(struct usb_gadget *g)
+ 
+ 	stop_activity(udc, NULL);
+ 	udc_disable(udc);
++	dplus_pullup(udc, 0);
+ 
+ 	udc->driver = NULL;
+ 
+@@ -2395,6 +2405,65 @@ static struct pxa_udc memory = {
+ 	}
+ };
+ 
++static ssize_t usb_mode_show(struct device *dev, struct device_attribute *attr,
++	char *buf)
++{
++	struct pxa_udc *udc = dev_get_drvdata(dev);
++
++	if (udc_readl(udc, UP2OCR) & UP2OCR_HXS)
++		return sprintf(buf, "host\n");
++	else
++		return sprintf(buf, "device\n");
++}
++
++static ssize_t usb_mode_set(struct device *dev, struct device_attribute *attr,
++	const char *buf, size_t count)
++{
++	u32 v;
++	struct pxa_udc *udc = dev_get_drvdata(dev);
++
++	if (strncmp(buf, "host", min(count, (size_t)4)) == 0) {
++		v = udc_readl(udc, UP2OCR);
++		/* Enable D+ and D- pull down,
++		   Transceiver output select = 1 -> Host
++		 */
++		v |= (UP2OCR_HXS |UP2OCR_DPPDE | UP2OCR_DMPDE);
++		/* Disable D+ pull up */
++		v &= ~(UP2OCR_DPPUE);
++		/* Enable transceiver */
++		v |= UP2OCR_HXOE;;
++		udc_writel(udc, UP2OCR, v);
++
++		return count;
++	} else if (strncmp(buf, "device", min(count, (size_t)6)) == 0) {
++		v = udc_readl(udc, UP2OCR);
++		/* Disable D+ and D- pull down,
++		   Transceiver output select = 0 -> UDC
++		 */
++		v &= ~(UP2OCR_HXS |UP2OCR_DPPDE | UP2OCR_DMPDE);
++		/* Enable transceiver */
++		v |= UP2OCR_HXOE;
++		/* Enable D+ pull up if necessary */
++		if (udc->pullup_on)
++			v |= UP2OCR_DPPUE;
++		udc_writel(udc, UP2OCR, v);
++
++		return count;
++	}
++	return -EINVAL;
++}
++
++static DEVICE_ATTR(usb_mode, 0644, usb_mode_show, usb_mode_set);
++
++static const struct attribute *attrs[] = {
++	&dev_attr_usb_mode.attr,
++	NULL,
++};
++
++static const struct attribute_group attr_group = {
++	.attrs	= (struct attribute **)attrs,
++};
++
+ #if defined(CONFIG_OF)
+ static const struct of_device_id udc_pxa_dt_ids[] = {
+ 	{ .compatible = "marvell,pxa270-udc" },
+@@ -2417,6 +2486,7 @@ static int pxa_udc_probe(struct platform_device *pdev)
+ 	int retval = 0, gpio;
+ 	struct pxa2xx_udc_mach_info *mach = dev_get_platdata(&pdev->dev);
+ 	unsigned long gpio_flags;
++	u32 v;
+ 
+ 	if (mach) {
+ 		gpio_flags = mach->gpio_pullup_inverted ? GPIOF_ACTIVE_LOW : 0;
+@@ -2446,9 +2516,9 @@ static int pxa_udc_probe(struct platform_device *pdev)
+ 	udc->transceiver = usb_get_phy(USB_PHY_TYPE_USB2);
+ 
+ 	if (IS_ERR(udc->gpiod)) {
+-		dev_err(&pdev->dev, "Couldn't find or request D+ gpio : %ld\n",
++		dev_warn(&pdev->dev, "Couldn't find or request D+ gpio : %ld, using UP2OCR\n",
+ 			PTR_ERR(udc->gpiod));
+-		return PTR_ERR(udc->gpiod);
++		udc->gpiod = NULL;
+ 	}
+ 	if (udc->gpiod)
+ 		gpiod_direction_output(udc->gpiod, 0);
+@@ -2480,7 +2550,22 @@ static int pxa_udc_probe(struct platform_device *pdev)
+ 	if (retval)
+ 		goto err;
+ 
++	retval = sysfs_create_group(&pdev->dev.kobj, &attr_group);
++	if (retval)
++		goto err;
++
+ 	pxa_init_debugfs(udc);
++
++	/* Switch to device mode by default */
++	v = udc_readl(udc, UP2OCR);
++	/* Disable D+ and D- pull down,
++	   Transceiver output select = 0 -> UDC
++	 */
++	v &= ~(UP2OCR_HXS |UP2OCR_DPPDE | UP2OCR_DMPDE);
++	/* Enable transceiver */
++	v |= UP2OCR_HXOE;
++	udc_writel(udc, UP2OCR, v);
++
+ 	if (should_enable_udc(udc))
+ 		udc_enable(udc);
+ 	return 0;
+@@ -2499,6 +2584,7 @@ static int pxa_udc_remove(struct platform_device *_dev)
+ 
+ 	usb_del_gadget_udc(&udc->gadget);
+ 	pxa_cleanup_debugfs(udc);
++	sysfs_remove_group(&_dev->dev.kobj, &attr_group);
+ 
+ 	usb_put_phy(udc->transceiver);
+ 
+-- 
+1.7.10.4
+

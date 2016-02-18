@@ -1,0 +1,970 @@
+From f9d2b51dfed51e502a5081131cfe96d6c3751df3 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 14 Feb 2016 21:02:46 -0800
+Subject: [PATCH 13/19] ARM: Z2: port to DT inialization
+
+---
+ arch/arm/boot/dts/Makefile     |    1 +
+ arch/arm/boot/dts/pxa27x.dtsi  |   38 ++++
+ arch/arm/boot/dts/pxa2xx.dtsi  |   13 +-
+ arch/arm/boot/dts/zipit-z2.dts |  298 ++++++++++++++++++++++++++
+ arch/arm/mach-pxa/z2.c         |  451 +++-------------------------------------
+ 5 files changed, 375 insertions(+), 426 deletions(-)
+ create mode 100644 arch/arm/boot/dts/zipit-z2.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 30bbc37..f7babb0 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -777,6 +777,7 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
+ 	mt8127-moose.dtb \
+ 	mt8135-evbp1.dtb
+ dtb-$(CONFIG_ARCH_ZX) += zx296702-ad1.dtb
++dtb-$(CONFIG_PXA27x) += zipit-z2.dtb
+ endif
+ 
+ dtstree		:= $(srctree)/$(src)
+diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
+index 7f68a1e..7b58449 100644
+--- a/arch/arm/boot/dts/pxa27x.dtsi
++++ b/arch/arm/boot/dts/pxa27x.dtsi
+@@ -104,6 +104,44 @@
+ 
+ 			status = "disabled";
+ 		};
++
++		ssp1: ssp@41000000 {
++			compatible = "mrvl,pxa27x-ssp";
++			reg = <0x41000000 0x40>;
++			interrupts = <24>;
++			clocks = <&clks CLK_SSP1>;
++			dmas = <&pdma 13 2
++				&pdma 14 2>;
++			dma-names = "rx", "tx";
++			status = "disabled";
++		};
++		ssp2: ssp@41700000 {
++			compatible = "mrvl,pxa27x-ssp";
++			reg = <0x41700000 0x40>;
++			interrupts = <16>;
++			clocks = <&clks CLK_SSP2>;
++			dmas = <&pdma 15 2
++				&pdma 16 2>;
++			dma-names = "rx", "tx";
++			status = "disabled";
++		};
++		ssp3: ssp@41900000 {
++			compatible = "mrvl,pxa27x-ssp";
++			reg = <0x41900000 0x40>;
++			interrupts = <0>;
++			clocks = <&clks CLK_SSP3>;
++			dmas = <&pdma 66 2
++				&pdma 67 2>;
++			dma-names = "rx", "tx";
++			status = "disabled";
++		};
++		keypad: keypad@41500000 {
++			compatible = "marvell,pxa27x-keypad";
++			reg = <0x41500000 0x4d>;
++			interrupts = <4>;
++			clocks = <&clks CLK_KEYPAD>;
++			status = "disabled";
++		};
+ 	};
+ 
+ 	clocks {
+diff --git a/arch/arm/boot/dts/pxa2xx.dtsi b/arch/arm/boot/dts/pxa2xx.dtsi
+index 5e5af07..4afd8fa 100644
+--- a/arch/arm/boot/dts/pxa2xx.dtsi
++++ b/arch/arm/boot/dts/pxa2xx.dtsi
+@@ -54,8 +54,8 @@
+ 			reg = <0x40e00000 0x10000>;
+ 			gpio-controller;
+ 			#gpio-cells = <0x2>;
+-			interrupts = <10>;
+-			interrupt-names = "gpio_mux";
++			interrupts = <8>, <9>, <10>;
++			//interrupt-names = "gpio_mux";
+ 			interrupt-controller;
+ 			#interrupt-cells = <0x2>;
+ 			ranges;
+@@ -135,10 +135,19 @@
+ 			status = "disabled";
+ 		};
+ 
++		i2s: pxa2xx-i2s@40400000 {
++			compatible = "mrvl,pxa2xx-i2s";
++			reg = <0x40400000 84>;
++			interrupts = <13>;
++			clocks = <&clks CLK_I2S>;
++			status = "disabled";
++		};
++
+ 		rtc@40900000 {
+ 			compatible = "marvell,pxa-rtc";
+ 			reg = <0x40900000 0x3c>;
+ 			interrupts = <30 31>;
+ 		};
++
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/zipit-z2.dts b/arch/arm/boot/dts/zipit-z2.dts
+new file mode 100644
+index 0000000..df8ec4d
+--- /dev/null
++++ b/arch/arm/boot/dts/zipit-z2.dts
+@@ -0,0 +1,298 @@
++/*
++ *  Copyright (C) 2016 Vasily Khoruzhick <anarsoul@gmail.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  publishhed by the Free Software Foundation.
++ */
++
++/dts-v1/;
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++#include "pxa27x.dtsi"
++
++/ {
++	model = "Zipit Z2";
++	compatible = "zipitz2";
++
++	chosen {
++		bootargs = "console=ttyS2";
++	};
++
++	memory {
++		reg = <0xa0000000 0x2000000>;
++	};
++
++	pxabus {
++		nor_flash@00000000 {
++			compatible = "cfi-flash";
++			reg = <0x00000000 0x800000>;
++			linux,mtd-name = "physmap-flash.0";
++			bank-width = <2>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			uboot@0 {
++				label = "U-Boot Bootloader";
++				reg = <0x00000 0x40000>;
++			};
++
++			ubootenv@40000 {
++				label = "U-Boot Environment";
++				reg = <0x40000 0x20000>;
++			};
++
++			flash@60000 {
++				label = "Flash";
++				reg = <0x60000 0x780000>;
++			};
++
++			logo@7e0000  {
++				label = "U-Boot Logo";
++				reg = <0x7e0000 0x20000>;
++			};
++		};
++
++		pwri2c: i2c@40f000180 {
++			status = "okay";
++			tps65021@48 {
++				compatible = "ti,tps65021";
++				reg = <0x48>;
++				regulators {
++					tps65021_vcc_core_reg: vcc_core {
++						regulator-name = "vcc_core";
++						regulator-always-on;
++						regulator-boot-on;
++						regulator-min-microvolt = <800000>;
++						regulator-max-microvolt = <1600000>;
++					};
++					tps65021_dcdc2_reg: dcdc1 {
++						regulator-name = "DCDC2";
++						regulator-always-on;
++						regulator-boot-on;
++						regulator-min-microvolt = <3300000>;
++						regulator-max-microvolt = <3300000>;
++					};
++					tps65021_dcdc3_reg: dcdc2 {
++						regulator-name = "DCDC3";
++						regulator-always-on;
++						regulator-boot-on;
++						regulator-min-microvolt = <1800000>;
++						regulator-max-microvolt = <1800000>;
++					};
++					tps65021_ldo1_reg: ldo1 {
++						regulator-name = "LDO1";
++						regulator-always-on;
++						regulator-boot-on;
++						regulator-min-microvolt = <1000000>;
++						regulator-max-microvolt = <3150000>;
++					};
++					tps65021_ldo2_reg: ldo2 {
++						regulator-name = "LDO2";
++						regulator-always-on;
++						regulator-boot-on;
++						regulator-min-microvolt = <1050000>;
++						regulator-max-microvolt = <3300000>;
++					};
++				};
++			};
++		};
++		pxai2c1: i2c@40301680 {
++			status = "okay";
++			aer915@55 {
++				compatible = "aer915";
++				reg = <0x55>;
++				charge-gpio = <&gpio 0 GPIO_ACTIVE_LOW>;
++				i2c_reg = <2>;
++				min_voltage = <3475000>;
++				max_voltage = <4190000>;
++				batt_div = <59>;
++				batt_mult = <1000000>;
++				batt_name = "Z2";
++			};
++			wm8750: wm8750@1b {
++				#sound-dai-cells = <0>;
++				compatible = "wlf,wm8750";
++				reg = <0x1b>;
++			};
++		};
++		mmc0: mmc@41100000 {
++			pxa-mmc,detect-delay-ms = <200>;
++			//cd-gpios = <&gpio 96 GPIO_ACTIVE_HIGH>;
++			status = "okay";
++		};
++		uart0: uart@40100000 {
++			status = "okay";
++		};
++		uart1: uart@40200000 {
++			status = "okay";
++		};
++		uart2: uart@40700000 {
++			status = "okay";
++		};
++
++		display-backlight {
++			compatible = "pwm-backlight";
++			pwms = <&pwm1 1260320>;
++			brightness-levels = <0 200 300 400 500 600 700 800 900 1023>;
++			default-brightness-level = <4>;
++		};
++
++		keyboard-backlight {
++			compatible = "pwm-backlight";
++			pwms = <&pwm2 1260320>;
++			brightness-levels = <0 200 300 400 500 600 700 800 900 1023>;
++			default-brightness-level = <0>;
++		};
++		gpio-leds {
++			compatible = "gpio-leds";
++
++			green-wifi {
++				label = "z2:green:wifi";
++				gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
++			};
++			green-charged {
++				label = "z2:green:charged";
++				linux,default_trigger = "mmc0";
++				gpios = <&gpio 85 GPIO_ACTIVE_LOW>;
++			};
++			amber-charging {
++				label = "z2:amber:charging";
++				linux,default_trigger = "Z2-charging-or-full";
++				gpios = <&gpio 83 GPIO_ACTIVE_LOW>;
++			};
++		};
++		gpio-keys {
++			compatible = "gpio-keys";
++			power-button {
++				label = "Power Button";
++				linux,code = <KEY_POWER>;
++				gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
++				gpio-key,wakeup;
++			};
++			lid {
++				label = "Lid Switch";
++				linux,code = <SW_LID>;
++				gpios = <&gpio 98 GPIO_ACTIVE_LOW>;
++			};
++		};
++		keypad@41500000 {
++			status = "okay";
++			keypad,num-rows = <7>;
++			keypad,num-columns = <8>;
++			marvell,debounce-interval = <30>;
++			linux,keymap = <0x00000165   /* KEY_OPTION */
++					0x01000067   /* KEY_UP */
++					0x0200006c   /* KEY_DOWN */
++					0x03000069   /* KEY_LEFT */
++					0x0400006a   /* KEY_RIGHT */
++					0x0500006b   /* KEY_END */
++					0x0600004e   /* KEY_KPPLUS */
++					0x00010066   /* KEY_HOME */
++					0x01010010   /* KEY_Q */
++					0x02010017   /* KEY_I */
++					0x03010022   /* KEY_G */
++					0x0401002d   /* KEY_X */
++					0x0501001c   /* KEY_ENTER */
++					0x0601004a   /* KEY_KPMINUS */
++					0x00020068   /* KEY_PAGEUP */
++					0x01020011   /* KEY_W */
++					0x02020018   /* KEY_O */
++					0x03020023   /* KEY_H */
++					0x0402002e   /* KEY_C */
++					0x05020038   /* KEY_LEFTALT */
++					0x0003006d   /* KEY_PAGEDOWN */
++					0x01030012   /* KEY_E */
++					0x02030019   /* KEY_P */
++					0x03030024   /* KEY_J */
++					0x0403002f   /* KEY_V */
++					0x0503002a   /* KEY_LEFTSHIFT */
++					0x00040001   /* KEY_ESC */
++					0x01040013   /* KEY_R */
++					0x0204001e   /* KEY_A */
++					0x03040025   /* KEY_K */
++					0x04040030   /* KEY_B */
++					0x0504001d   /* KEY_LEFTCTRL */
++					0x0005000f   /* KEY_TAB */
++					0x01050014   /* KEY_T */
++					0x0205001f   /* KEY_S */
++					0x03050026   /* KEY_L */
++					0x04050031   /* KEY_N */
++					0x05050039   /* KEY_SPACE */
++					0x000600a6   /* KEY_STOPCD */
++					0x01060015   /* KEY_Y */
++					0x02060020   /* KEY_D */
++					0x0306000e   /* KEY_BACKSPACE */
++					0x04060032   /* KEY_M */
++					0x05060033   /* KEY_COMMA */
++					0x000700c8   /* KEY_PLAYCD */
++					0x01070016   /* KEY_U */
++					0x02070021   /* KEY_F */
++					0x0307002c   /* KEY_Z */
++					0x04070027   /* KEY_SEMICOLON */
++					0x05070034>; /* KEY_DOT */
++		};
++		ssp1: ssp@41000000 {
++			status = "okay";
++		};
++		ssp2: ssp@41700000 {
++			status = "okay";
++		};
++		i2s: pxa2xx-i2s@40400000 {
++			#sound-dai-cells = <0>;
++			status = "okay";
++		};
++		sound_plat: pxa-pcm-audio {
++			#sound-dai-cells = <0>;
++			compatible = "mrvl,pxa-pcm-audio";
++			status = "okay";
++		};
++		audio {
++			compatible = "simple-audio-card";
++			simple-audio-card,name = "Z2";
++			simple-audio-card,format = "i2s";
++			simple-audio-card,bitclock-master = <&frame_master>;
++			simple-audio-card,frame-master = <&frame_master>;
++			simple-audio-card,widgets =
++				"Headphone", "Headphones",
++				"Microphone", "Microphone",
++				"Speaker", "Speaker";
++			simple-audio-card,routing =
++			/* headphone connected to LOUT1, ROUT1 */
++			"Headphones", "LOUT1",
++			"Headphones", "ROUT1",
++
++			/* ext speaker connected to LOUT2, ROUT2  */
++			"Speaker", "ROUT2",
++			"Speaker", "LOUT2",
++
++			/* mic is connected to R input 2 - with bias */
++			"RINPUT2", "Mic Bias",
++			"Mic Bias", "Microphone";
++
++			simple-audio-card,hp-det-gpio = <&gpio 37 GPIO_ACTIVE_LOW>;
++
++			frame_master: simple-audio-card,cpu {
++				sound-dai = <&i2s>;
++			};
++			simple-audio-card,codec {
++				sound-dai = <&wm8750>;
++				system-clock-frequency = <11289600>;
++			};
++			simple-audio-card,plat {
++				sound-dai = <&sound_plat>;
++			};
++		};
++		pxa27x_udc: udc@40600000 {
++			status = "okay";
++		};
++		pxa27x_ohci: usb@4c000000 {
++			status = "okay";
++			marvell,enable-port2;
++			marvell,no-oc-protection;
++			marvell,power-on-delay = <10>;
++			marvell,power-budget = <500>;
++			marvell,port-mode = <3>;
++		};
++	};
++};
+diff --git a/arch/arm/mach-pxa/z2.c b/arch/arm/mach-pxa/z2.c
+index d9899d7..11ad845 100644
+--- a/arch/arm/mach-pxa/z2.c
++++ b/arch/arm/mach-pxa/z2.c
+@@ -4,6 +4,7 @@
+  *  Support for the Zipit Z2 Handheld device.
+  *
+  *  Copyright (C) 2009-2010 Marek Vasut <marek.vasut@gmail.com>
++ *  Copyright (C) 2016 Vasily Khoruzhick <anarsoul@gmail.com>
+  *
+  *  Based on research and code by: Ken McGuire
+  *  Based on mainstone.c as modified for the Zipit Z2.
+@@ -16,21 +17,16 @@
+ #include <linux/platform_device.h>
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+-#include <linux/pwm.h>
+-#include <linux/pwm_backlight.h>
+-#include <linux/z2_battery.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/pxa2xx_spi.h>
+ #include <linux/spi/libertas_spi.h>
+ #include <linux/spi/lms283gf05.h>
+ #include <linux/power_supply.h>
+-#include <linux/mtd/physmap.h>
+ #include <linux/gpio.h>
+-#include <linux/gpio_keys.h>
+ #include <linux/delay.h>
+-#include <linux/regulator/machine.h>
+-#include <linux/i2c/pxa-i2c.h>
++#include <linux/of_platform.h>
++#include <linux/dma/pxa-dma.h>
+ 
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+@@ -39,8 +35,6 @@
+ #include <mach/mfp-pxa27x.h>
+ #include <mach/z2.h>
+ #include <linux/platform_data/video-pxafb.h>
+-#include <linux/platform_data/mmc-pxamci.h>
+-#include <linux/platform_data/keypad-pxa27x.h>
+ #include <mach/pm.h>
+ 
+ #include "generic.h"
+@@ -147,108 +141,6 @@ static unsigned long z2_pin_config[] = {
+ };
+ 
+ /******************************************************************************
+- * NOR Flash
+- ******************************************************************************/
+-#if defined(CONFIG_MTD_PHYSMAP) || defined(CONFIG_MTD_PHYSMAP_MODULE)
+-static struct resource z2_flash_resource = {
+-	.start	= PXA_CS0_PHYS,
+-	.end	= PXA_CS0_PHYS + SZ_8M - 1,
+-	.flags	= IORESOURCE_MEM,
+-};
+-
+-static struct mtd_partition z2_flash_parts[] = {
+-	{
+-		.name	= "U-Boot Bootloader",
+-		.offset	= 0x0,
+-		.size	= 0x40000,
+-	}, {
+-		.name	= "U-Boot Environment",
+-		.offset	= 0x40000,
+-		.size	= 0x20000,
+-	}, {
+-		.name	= "Flash",
+-		.offset	= 0x60000,
+-		.size	= MTDPART_SIZ_FULL,
+-	},
+-};
+-
+-static struct physmap_flash_data z2_flash_data = {
+-	.width		= 2,
+-	.parts		= z2_flash_parts,
+-	.nr_parts	= ARRAY_SIZE(z2_flash_parts),
+-};
+-
+-static struct platform_device z2_flash = {
+-	.name		= "physmap-flash",
+-	.id		= -1,
+-	.resource	= &z2_flash_resource,
+-	.num_resources	= 1,
+-	.dev = {
+-		.platform_data	= &z2_flash_data,
+-	},
+-};
+-
+-static void __init z2_nor_init(void)
+-{
+-	platform_device_register(&z2_flash);
+-}
+-#else
+-static inline void z2_nor_init(void) {}
+-#endif
+-
+-/******************************************************************************
+- * Backlight
+- ******************************************************************************/
+-#if defined(CONFIG_BACKLIGHT_PWM) || defined(CONFIG_BACKLIGHT_PWM_MODULE)
+-static struct pwm_lookup z2_pwm_lookup[] = {
+-	PWM_LOOKUP("pxa27x-pwm.1", 0, "pwm-backlight.0", NULL, 1260320,
+-		   PWM_POLARITY_NORMAL),
+-	PWM_LOOKUP("pxa27x-pwm.0", 1, "pwm-backlight.1", NULL, 1260320,
+-		   PWM_POLARITY_NORMAL),
+-};
+-
+-static struct platform_pwm_backlight_data z2_backlight_data[] = {
+-	[0] = {
+-		/* Keypad Backlight */
+-		.max_brightness	= 1023,
+-		.dft_brightness	= 0,
+-		.enable_gpio	= -1,
+-	},
+-	[1] = {
+-		/* LCD Backlight */
+-		.max_brightness	= 1023,
+-		.dft_brightness	= 512,
+-		.enable_gpio	= -1,
+-	},
+-};
+-
+-static struct platform_device z2_backlight_devices[2] = {
+-	{
+-		.name	= "pwm-backlight",
+-		.id	= 0,
+-		.dev	= {
+-			.platform_data	= &z2_backlight_data[1],
+-		},
+-	},
+-	{
+-		.name	= "pwm-backlight",
+-		.id	= 1,
+-		.dev	= {
+-			.platform_data	= &z2_backlight_data[0],
+-		},
+-	},
+-};
+-static void __init z2_pwm_init(void)
+-{
+-	pwm_add_table(z2_pwm_lookup, ARRAY_SIZE(z2_pwm_lookup));
+-	platform_device_register(&z2_backlight_devices[0]);
+-	platform_device_register(&z2_backlight_devices[1]);
+-}
+-#else
+-static inline void z2_pwm_init(void) {}
+-#endif
+-
+-/******************************************************************************
+  * Framebuffer
+  ******************************************************************************/
+ #if defined(CONFIG_FB_PXA) || defined(CONFIG_FB_PXA_MODULE)
+@@ -285,235 +177,6 @@ static inline void z2_lcd_init(void) {}
+ #endif
+ 
+ /******************************************************************************
+- * SD/MMC card controller
+- ******************************************************************************/
+-#if defined(CONFIG_MMC_PXA) || defined(CONFIG_MMC_PXA_MODULE)
+-static struct pxamci_platform_data z2_mci_platform_data = {
+-	.ocr_mask		= MMC_VDD_32_33 | MMC_VDD_33_34,
+-	.gpio_card_detect	= GPIO96_ZIPITZ2_SD_DETECT,
+-	.gpio_power		= -1,
+-	.gpio_card_ro		= -1,
+-	.detect_delay_ms	= 200,
+-};
+-
+-static void __init z2_mmc_init(void)
+-{
+-	pxa_set_mci_info(&z2_mci_platform_data);
+-}
+-#else
+-static inline void z2_mmc_init(void) {}
+-#endif
+-
+-/******************************************************************************
+- * LEDs
+- ******************************************************************************/
+-#if defined(CONFIG_LEDS_GPIO) || defined(CONFIG_LEDS_GPIO_MODULE)
+-struct gpio_led z2_gpio_leds[] = {
+-{
+-	.name			= "z2:green:wifi",
+-	.default_trigger	= "none",
+-	.gpio			= GPIO10_ZIPITZ2_LED_WIFI,
+-	.active_low		= 1,
+-}, {
+-	.name			= "z2:green:charged",
+-	.default_trigger	= "mmc0",
+-	.gpio			= GPIO85_ZIPITZ2_LED_CHARGED,
+-	.active_low		= 1,
+-}, {
+-	.name			= "z2:amber:charging",
+-	.default_trigger	= "Z2-charging-or-full",
+-	.gpio			= GPIO83_ZIPITZ2_LED_CHARGING,
+-	.active_low		= 1,
+-},
+-};
+-
+-static struct gpio_led_platform_data z2_gpio_led_info = {
+-	.leds		= z2_gpio_leds,
+-	.num_leds	= ARRAY_SIZE(z2_gpio_leds),
+-};
+-
+-static struct platform_device z2_leds = {
+-	.name	= "leds-gpio",
+-	.id	= -1,
+-	.dev	= {
+-		.platform_data	= &z2_gpio_led_info,
+-	}
+-};
+-
+-static void __init z2_leds_init(void)
+-{
+-	platform_device_register(&z2_leds);
+-}
+-#else
+-static inline void z2_leds_init(void) {}
+-#endif
+-
+-/******************************************************************************
+- * GPIO keyboard
+- ******************************************************************************/
+-#if defined(CONFIG_KEYBOARD_PXA27x) || defined(CONFIG_KEYBOARD_PXA27x_MODULE)
+-static const unsigned int z2_matrix_keys[] = {
+-	KEY(0, 0, KEY_OPTION),
+-	KEY(1, 0, KEY_UP),
+-	KEY(2, 0, KEY_DOWN),
+-	KEY(3, 0, KEY_LEFT),
+-	KEY(4, 0, KEY_RIGHT),
+-	KEY(5, 0, KEY_END),
+-	KEY(6, 0, KEY_KPPLUS),
+-
+-	KEY(0, 1, KEY_HOME),
+-	KEY(1, 1, KEY_Q),
+-	KEY(2, 1, KEY_I),
+-	KEY(3, 1, KEY_G),
+-	KEY(4, 1, KEY_X),
+-	KEY(5, 1, KEY_ENTER),
+-	KEY(6, 1, KEY_KPMINUS),
+-
+-	KEY(0, 2, KEY_PAGEUP),
+-	KEY(1, 2, KEY_W),
+-	KEY(2, 2, KEY_O),
+-	KEY(3, 2, KEY_H),
+-	KEY(4, 2, KEY_C),
+-	KEY(5, 2, KEY_LEFTALT),
+-
+-	KEY(0, 3, KEY_PAGEDOWN),
+-	KEY(1, 3, KEY_E),
+-	KEY(2, 3, KEY_P),
+-	KEY(3, 3, KEY_J),
+-	KEY(4, 3, KEY_V),
+-	KEY(5, 3, KEY_LEFTSHIFT),
+-
+-	KEY(0, 4, KEY_ESC),
+-	KEY(1, 4, KEY_R),
+-	KEY(2, 4, KEY_A),
+-	KEY(3, 4, KEY_K),
+-	KEY(4, 4, KEY_B),
+-	KEY(5, 4, KEY_LEFTCTRL),
+-
+-	KEY(0, 5, KEY_TAB),
+-	KEY(1, 5, KEY_T),
+-	KEY(2, 5, KEY_S),
+-	KEY(3, 5, KEY_L),
+-	KEY(4, 5, KEY_N),
+-	KEY(5, 5, KEY_SPACE),
+-
+-	KEY(0, 6, KEY_STOPCD),
+-	KEY(1, 6, KEY_Y),
+-	KEY(2, 6, KEY_D),
+-	KEY(3, 6, KEY_BACKSPACE),
+-	KEY(4, 6, KEY_M),
+-	KEY(5, 6, KEY_COMMA),
+-
+-	KEY(0, 7, KEY_PLAYCD),
+-	KEY(1, 7, KEY_U),
+-	KEY(2, 7, KEY_F),
+-	KEY(3, 7, KEY_Z),
+-	KEY(4, 7, KEY_SEMICOLON),
+-	KEY(5, 7, KEY_DOT),
+-};
+-
+-static struct matrix_keymap_data z2_matrix_keymap_data = {
+-	.keymap			= z2_matrix_keys,
+-	.keymap_size		= ARRAY_SIZE(z2_matrix_keys),
+-};
+-
+-static struct pxa27x_keypad_platform_data z2_keypad_platform_data = {
+-	.matrix_key_rows	= 7,
+-	.matrix_key_cols	= 8,
+-	.matrix_keymap_data	= &z2_matrix_keymap_data,
+-
+-	.debounce_interval	= 30,
+-};
+-
+-static void __init z2_mkp_init(void)
+-{
+-	pxa_set_keypad_info(&z2_keypad_platform_data);
+-}
+-#else
+-static inline void z2_mkp_init(void) {}
+-#endif
+-
+-/******************************************************************************
+- * GPIO keys
+- ******************************************************************************/
+-#if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
+-static struct gpio_keys_button z2_pxa_buttons[] = {
+-	{
+-		.code		= KEY_POWER,
+-		.gpio		= GPIO1_ZIPITZ2_POWER_BUTTON,
+-		.active_low	= 0,
+-		.desc		= "Power Button",
+-		.wakeup		= 1,
+-		.type		= EV_KEY,
+-	},
+-	{
+-		.code		= SW_LID,
+-		.gpio		= GPIO98_ZIPITZ2_LID_BUTTON,
+-		.active_low	= 1,
+-		.desc		= "Lid Switch",
+-		.wakeup		= 0,
+-		.type		= EV_SW,
+-	},
+-};
+-
+-static struct gpio_keys_platform_data z2_pxa_keys_data = {
+-	.buttons	= z2_pxa_buttons,
+-	.nbuttons	= ARRAY_SIZE(z2_pxa_buttons),
+-};
+-
+-static struct platform_device z2_pxa_keys = {
+-	.name	= "gpio-keys",
+-	.id	= -1,
+-	.dev	= {
+-		.platform_data = &z2_pxa_keys_data,
+-	},
+-};
+-
+-static void __init z2_keys_init(void)
+-{
+-	platform_device_register(&z2_pxa_keys);
+-}
+-#else
+-static inline void z2_keys_init(void) {}
+-#endif
+-
+-/******************************************************************************
+- * Battery
+- ******************************************************************************/
+-#if defined(CONFIG_I2C_PXA) || defined(CONFIG_I2C_PXA_MODULE)
+-static struct z2_battery_info batt_chip_info = {
+-	.batt_I2C_bus	= 0,
+-	.batt_I2C_addr	= 0x55,
+-	.batt_I2C_reg	= 2,
+-	.charge_gpio	= GPIO0_ZIPITZ2_AC_DETECT,
+-	.min_voltage	= 3475000,
+-	.max_voltage	= 4190000,
+-	.batt_div	= 59,
+-	.batt_mult	= 1000000,
+-	.batt_tech	= POWER_SUPPLY_TECHNOLOGY_LION,
+-	.batt_name	= "Z2",
+-};
+-
+-static struct i2c_board_info __initdata z2_i2c_board_info[] = {
+-	{
+-		I2C_BOARD_INFO("aer915", 0x55),
+-		.platform_data	= &batt_chip_info,
+-	}, {
+-		I2C_BOARD_INFO("wm8750", 0x1b),
+-	},
+-
+-};
+-
+-static void __init z2_i2c_init(void)
+-{
+-	pxa_set_i2c_info(NULL);
+-	i2c_register_board_info(0, ARRAY_AND_SIZE(z2_i2c_board_info));
+-}
+-#else
+-static inline void z2_i2c_init(void) {}
+-#endif
+-
+-/******************************************************************************
+  * SSP Devices - WiFi and LCD control
+  ******************************************************************************/
+ #if defined(CONFIG_SPI_PXA2XX) || defined(CONFIG_SPI_PXA2XX_MODULE)
+@@ -557,6 +220,7 @@ static int z2_lbs_spi_teardown(struct spi_device *spi)
+ static struct pxa2xx_spi_chip z2_lbs_chip_info = {
+ 	.rx_threshold	= 8,
+ 	.tx_threshold	= 8,
++	.dma_burst_size = 8,
+ 	.timeout	= 1000,
+ 	.gpio_cs	= GPIO24_ZIPITZ2_WIFI_CS,
+ };
+@@ -584,7 +248,6 @@ static struct spi_board_info spi_board_info[] __initdata = {
+ 	.modalias		= "libertas_spi",
+ 	.platform_data		= &z2_lbs_pdata,
+ 	.controller_data	= &z2_lbs_chip_info,
+-	.irq			= PXA_GPIO_TO_IRQ(GPIO36_ZIPITZ2_WIFI_IRQ),
+ 	.max_speed_hz		= 13000000,
+ 	.bus_num		= 1,
+ 	.chip_select		= 0,
+@@ -599,9 +262,21 @@ static struct spi_board_info spi_board_info[] __initdata = {
+ },
+ };
+ 
++static struct pxad_param ssp1_tx = {
++	.drcmr = 14,
++	.prio = 0,
++};
++static struct pxad_param ssp1_rx = {
++	.drcmr = 13,
++	.prio = 0,
++};
++
+ static struct pxa2xx_spi_master pxa_ssp1_master_info = {
+ 	.num_chipselect	= 1,
+ 	.enable_dma	= 1,
++	.dma_filter	= pxad_filter_fn,
++	.tx_param	= &ssp1_tx,
++	.rx_param	= &ssp1_rx,
+ };
+ 
+ static struct pxa2xx_spi_master pxa_ssp2_master_info = {
+@@ -612,79 +287,13 @@ static void __init z2_spi_init(void)
+ {
+ 	pxa2xx_set_spi_info(1, &pxa_ssp1_master_info);
+ 	pxa2xx_set_spi_info(2, &pxa_ssp2_master_info);
++	spi_board_info[0].irq = gpio_to_irq(GPIO36_ZIPITZ2_WIFI_IRQ);
+ 	spi_register_board_info(spi_board_info, ARRAY_SIZE(spi_board_info));
+ }
+ #else
+ static inline void z2_spi_init(void) {}
+ #endif
+ 
+-/******************************************************************************
+- * Core power regulator
+- ******************************************************************************/
+-#if defined(CONFIG_REGULATOR_TPS65023) || \
+-	defined(CONFIG_REGULATOR_TPS65023_MODULE)
+-static struct regulator_consumer_supply z2_tps65021_consumers[] = {
+-	REGULATOR_SUPPLY("vcc_core", NULL),
+-};
+-
+-static struct regulator_init_data z2_tps65021_info[] = {
+-	{
+-		.constraints = {
+-			.name		= "vcc_core range",
+-			.min_uV		= 800000,
+-			.max_uV		= 1600000,
+-			.always_on	= 1,
+-			.valid_ops_mask	= REGULATOR_CHANGE_VOLTAGE,
+-		},
+-		.consumer_supplies	= z2_tps65021_consumers,
+-		.num_consumer_supplies	= ARRAY_SIZE(z2_tps65021_consumers),
+-	}, {
+-		.constraints = {
+-			.name		= "DCDC2",
+-			.min_uV		= 3300000,
+-			.max_uV		= 3300000,
+-			.always_on	= 1,
+-		},
+-	}, {
+-		.constraints = {
+-			.name		= "DCDC3",
+-			.min_uV		= 1800000,
+-			.max_uV		= 1800000,
+-			.always_on	= 1,
+-		},
+-	}, {
+-		.constraints = {
+-			.name		= "LDO1",
+-			.min_uV		= 1000000,
+-			.max_uV		= 3150000,
+-			.always_on	= 1,
+-		},
+-	}, {
+-		.constraints = {
+-			.name		= "LDO2",
+-			.min_uV		= 1050000,
+-			.max_uV		= 3300000,
+-			.always_on	= 1,
+-		},
+-	}
+-};
+-
+-static struct i2c_board_info __initdata z2_pi2c_board_info[] = {
+-	{
+-		I2C_BOARD_INFO("tps65021", 0x48),
+-		.platform_data	= &z2_tps65021_info,
+-	},
+-};
+-
+-static void __init z2_pmic_init(void)
+-{
+-	pxa27x_set_i2c_power_info(NULL);
+-	i2c_register_board_info(1, ARRAY_AND_SIZE(z2_pi2c_board_info));
+-}
+-#else
+-static inline void z2_pmic_init(void) {}
+-#endif
+-
+ #ifdef CONFIG_PM
+ static void z2_power_off(void)
+ {
+@@ -705,33 +314,27 @@ static void z2_power_off(void)
+  ******************************************************************************/
+ static void __init z2_init(void)
+ {
++	of_platform_populate(NULL, of_default_bus_match_table,
++                                        NULL, NULL);
+ 	pxa2xx_mfp_config(ARRAY_AND_SIZE(z2_pin_config));
+ 
+-	pxa_set_ffuart_info(NULL);
+-	pxa_set_btuart_info(NULL);
+-	pxa_set_stuart_info(NULL);
+-
+ 	z2_lcd_init();
+-	z2_mmc_init();
+-	z2_mkp_init();
+-	z2_i2c_init();
+ 	z2_spi_init();
+-	z2_nor_init();
+-	z2_pwm_init();
+-	z2_leds_init();
+-	z2_keys_init();
+-	z2_pmic_init();
+ 
+ 	pm_power_off = z2_power_off;
+ }
+ 
+-MACHINE_START(ZIPIT2, "Zipit Z2")
++static const char * const z2_dt_board_compat[] __initconst = {
++	"zipitz2",
++	NULL,
++};
++
++DT_MACHINE_START(ZIPIT2, "Zipit Z2")
+ 	.atag_offset	= 0x100,
+ 	.map_io		= pxa27x_map_io,
+-	.nr_irqs	= PXA_NR_IRQS,
+-	.init_irq	= pxa27x_init_irq,
++	.init_irq	= pxa27x_dt_init_irq,
+ 	.handle_irq	= pxa27x_handle_irq,
+-	.init_time	= pxa_timer_init,
+ 	.init_machine	= z2_init,
+ 	.restart	= pxa_restart,
++	.dt_compat	= z2_dt_board_compat,
+ MACHINE_END
+-- 
+1.7.10.4
+

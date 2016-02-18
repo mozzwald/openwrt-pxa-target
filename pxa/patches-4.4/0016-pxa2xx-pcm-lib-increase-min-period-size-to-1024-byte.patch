@@ -1,0 +1,29 @@
+From 1b6f89f21e60228bda5e1ea735f164b7995aa64a Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Feb 2016 13:25:56 -0800
+Subject: [PATCH 16/19] pxa2xx-pcm-lib: increase min period size to 1024 bytes
+
+32 is too small value, it causes high interrupt rate and
+audio stuttering
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ sound/arm/pxa2xx-pcm-lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sound/arm/pxa2xx-pcm-lib.c b/sound/arm/pxa2xx-pcm-lib.c
+index e9b98af..a7bf5af 100644
+--- a/sound/arm/pxa2xx-pcm-lib.c
++++ b/sound/arm/pxa2xx-pcm-lib.c
+@@ -27,7 +27,7 @@ static const struct snd_pcm_hardware pxa2xx_pcm_hardware = {
+ 	.formats		= SNDRV_PCM_FMTBIT_S16_LE |
+ 					SNDRV_PCM_FMTBIT_S24_LE |
+ 					SNDRV_PCM_FMTBIT_S32_LE,
+-	.period_bytes_min	= 32,
++	.period_bytes_min	= 1024,
+ 	.period_bytes_max	= 8192 - 32,
+ 	.periods_min		= 1,
+ 	.periods_max		= 256,
+-- 
+1.7.10.4
+

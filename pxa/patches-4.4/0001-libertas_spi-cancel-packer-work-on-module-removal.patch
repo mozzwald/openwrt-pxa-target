@@ -1,0 +1,25 @@
+From 5c5ba95a8ebf775d24346197d418cc686491fa78 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Mon, 7 Mar 2011 15:07:47 +0200
+Subject: [PATCH 01/19] libertas_spi: cancel packer work on module removal
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/net/wireless/libertas/if_spi.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/wireless/libertas/if_spi.c b/drivers/net/wireless/libertas/if_spi.c
+index 82c0796..1644222 100644
+--- a/drivers/net/wireless/libertas/if_spi.c
++++ b/drivers/net/wireless/libertas/if_spi.c
+@@ -1235,6 +1235,7 @@ static int libertas_spi_remove(struct spi_device *spi)
+ 	lbs_remove_card(priv); /* will call free_netdev */
+ 
+ 	free_irq(spi->irq, card);
++	cancel_work_sync(&card->packet_work);
+ 	flush_workqueue(card->workqueue);
+ 	destroy_workqueue(card->workqueue);
+ 	if (card->pdata->teardown)
+-- 
+1.7.10.4
+

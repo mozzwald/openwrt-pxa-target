@@ -1,0 +1,90 @@
+From 22372ec98f936be922f2c86d172bfaf44b1a09df Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 2 Aug 2011 12:48:54 +0300
+Subject: [PATCH 02/19] libertas: add ability to power off card on suspend
+
+Could be usefull if it's not possible to keep power on the card
+when host goes into suspend.
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/net/wireless/libertas/dev.h  |    3 ++-
+ drivers/net/wireless/libertas/main.c |   22 +++++++++++++++-------
+ 2 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/wireless/libertas/dev.h b/drivers/net/wireless/libertas/dev.h
+index 6bd1608..adc7d34 100644
+--- a/drivers/net/wireless/libertas/dev.h
++++ b/drivers/net/wireless/libertas/dev.h
+@@ -99,9 +99,10 @@ struct lbs_private {
+ 	/* Hardware access */
+ 	void *card;
+ 	bool iface_running;
++	bool suspend_iface_status;
+ 	u8 fw_ready;
+ 	u8 surpriseremoved;
+-	u8 setup_fw_on_resume;
++	u8 disable_on_suspend;
+ 	int (*hw_host_to_card) (struct lbs_private *priv, u8 type, u8 *payload, u16 nb);
+ 	void (*reset_card) (struct lbs_private *priv);
+ 	int (*power_save) (struct lbs_private *priv);
+diff --git a/drivers/net/wireless/libertas/main.c b/drivers/net/wireless/libertas/main.c
+index 8079560..7e63255 100644
+--- a/drivers/net/wireless/libertas/main.c
++++ b/drivers/net/wireless/libertas/main.c
+@@ -693,7 +693,7 @@ done:
+ 
+ int lbs_suspend(struct lbs_private *priv)
+ {
+-	int ret;
++	int ret = 0;
+ 
+ 	lbs_deb_enter(LBS_DEB_FW);
+ 
+@@ -707,7 +707,13 @@ int lbs_suspend(struct lbs_private *priv)
+ 		priv->deep_sleep_required = 1;
+ 	}
+ 
+-	ret = lbs_set_host_sleep(priv, 1);
++	if (priv->disable_on_suspend) {
++		/* Disable card */
++		priv->suspend_iface_status = priv->iface_running;
++		if (priv->iface_running)
++			lbs_stop_iface(priv);
++	} else
++		ret = lbs_set_host_sleep(priv, 1);
+ 
+ 	netif_device_detach(priv->dev);
+ 	if (priv->mesh_dev)
+@@ -720,11 +726,16 @@ EXPORT_SYMBOL_GPL(lbs_suspend);
+ 
+ int lbs_resume(struct lbs_private *priv)
+ {
+-	int ret;
++	int ret = 0;
+ 
+ 	lbs_deb_enter(LBS_DEB_FW);
+ 
+-	ret = lbs_set_host_sleep(priv, 0);
++	if (priv->disable_on_suspend) {
++		/* Enable card */
++		if (priv->suspend_iface_status)
++			lbs_start_iface(priv);
++	} else
++		ret = lbs_set_host_sleep(priv, 0);
+ 
+ 	netif_device_attach(priv->dev);
+ 	if (priv->mesh_dev)
+@@ -738,9 +749,6 @@ int lbs_resume(struct lbs_private *priv)
+ 				   "deep sleep activation failed: %d\n", ret);
+ 	}
+ 
+-	if (priv->setup_fw_on_resume)
+-		ret = lbs_setup_firmware(priv);
+-
+ 	lbs_deb_leave_args(LBS_DEB_FW, "ret %d", ret);
+ 	return ret;
+ }
+-- 
+1.7.10.4
+

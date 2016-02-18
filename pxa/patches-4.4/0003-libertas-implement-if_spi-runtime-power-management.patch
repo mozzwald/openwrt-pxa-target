@@ -1,0 +1,184 @@
+From bd009c176f559ea3aa238a00c7a23a9f3e4f3a0d Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 2 Aug 2011 11:48:27 +0300
+Subject: [PATCH 03/19] libertas: implement if_spi runtime power management
+
+The SPI card is now fully powered down when the network
+interface is brought down.
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/net/wireless/libertas/if_spi.c |   80 ++++++++++++++++++--------------
+ 1 file changed, 44 insertions(+), 36 deletions(-)
+
+diff --git a/drivers/net/wireless/libertas/if_spi.c b/drivers/net/wireless/libertas/if_spi.c
+index 1644222..3a3033a 100644
+--- a/drivers/net/wireless/libertas/if_spi.c
++++ b/drivers/net/wireless/libertas/if_spi.c
+@@ -1104,21 +1104,39 @@ static void if_spi_resume_worker(struct work_struct *work)
+ 	card = container_of(work, struct if_spi_card, resume_work);
+ 
+ 	if (card->suspended) {
+-		if (card->pdata->setup)
+-			card->pdata->setup(card->spi);
+-
+-		/* Init card ... */
+-		if_spi_init_card(card);
+-
+-		enable_irq(card->spi->irq);
+-
+-		/* And resume it ... */
+ 		lbs_resume(card->priv);
+ 
+ 		card->suspended = 0;
+ 	}
+ }
+ 
++static int if_spi_power_save(struct lbs_private *priv)
++{
++	struct if_spi_card *card = priv->card;
++
++	flush_workqueue(card->workqueue);
++	disable_irq(card->spi->irq);
++	card->pdata->teardown(card->spi);
++	priv->fw_ready = 0;
++
++	return 0;
++}
++
++static int if_spi_power_restore(struct lbs_private *priv)
++{
++	struct if_spi_card *card = priv->card;
++	int ret;
++
++	card->pdata->setup(card->spi);
++	ret = if_spi_init_card(card);
++	if (ret)
++		return ret;
++	enable_irq(card->spi->irq);
++	priv->fw_ready = 1;
++
++	return 0;
++}
++
+ static int if_spi_probe(struct spi_device *spi)
+ {
+ 	struct if_spi_card *card;
+@@ -1133,17 +1151,11 @@ static int if_spi_probe(struct spi_device *spi)
+ 		goto out;
+ 	}
+ 
+-	if (pdata->setup) {
+-		err = pdata->setup(spi);
+-		if (err)
+-			goto out;
+-	}
+-
+ 	/* Allocate card structure to represent this specific device */
+ 	card = kzalloc(sizeof(struct if_spi_card), GFP_KERNEL);
+ 	if (!card) {
+ 		err = -ENOMEM;
+-		goto teardown;
++		goto out;
+ 	}
+ 	spi_set_drvdata(spi, card);
+ 	card->pdata = pdata;
+@@ -1154,13 +1166,6 @@ static int if_spi_probe(struct spi_device *spi)
+ 	INIT_LIST_HEAD(&card->data_packet_list);
+ 	spin_lock_init(&card->buffer_lock);
+ 
+-	/* Initialize the SPI Interface Unit */
+-
+-	/* Firmware load */
+-	err = if_spi_init_card(card);
+-	if (err)
+-		goto free_card;
+-
+ 	/*
+ 	 * Register our card with libertas.
+ 	 * This will call alloc_etherdev.
+@@ -1171,13 +1176,16 @@ static int if_spi_probe(struct spi_device *spi)
+ 		goto free_card;
+ 	}
+ 	card->priv = priv;
+-	priv->setup_fw_on_resume = 1;
+ 	priv->card = card;
+ 	priv->hw_host_to_card = if_spi_host_to_card;
++	if (pdata->setup && pdata->teardown) {
++		priv->power_save = if_spi_power_save;
++		priv->power_restore = if_spi_power_restore;
++	}
+ 	priv->enter_deep_sleep = NULL;
+ 	priv->exit_deep_sleep = NULL;
+ 	priv->reset_deep_sleep_wakeup = NULL;
+-	priv->fw_ready = 1;
++	priv->disable_on_suspend = 1;
+ 
+ 	/* Initialize interrupt handling stuff. */
+ 	card->workqueue = create_workqueue("libertas_spi");
+@@ -1191,6 +1199,13 @@ static int if_spi_probe(struct spi_device *spi)
+ 		goto terminate_workqueue;
+ 	}
+ 
++	/* Disable IRQ, hw is not ready yet */
++	disable_irq(spi->irq);
++
++	err = if_spi_power_restore(priv);
++	if (err)
++		goto release_irq;
++
+ 	/*
+ 	 * Start the card.
+ 	 * This will call register_netdev, and we'll start
+@@ -1198,13 +1213,16 @@ static int if_spi_probe(struct spi_device *spi)
+ 	 */
+ 	err = lbs_start_card(priv);
+ 	if (err)
+-		goto release_irq;
++		goto teardown;
++	if_spi_power_save(priv);
+ 
+ 	lbs_deb_spi("Finished initializing WLAN module.\n");
+ 
+ 	/* successful exit */
+ 	goto out;
+ 
++teardown:
++	if_spi_power_save(priv);
+ release_irq:
+ 	free_irq(spi->irq, card);
+ terminate_workqueue:
+@@ -1213,9 +1231,6 @@ terminate_workqueue:
+ 	lbs_remove_card(priv); /* will call free_netdev */
+ free_card:
+ 	free_if_spi_card(card);
+-teardown:
+-	if (pdata->teardown)
+-		pdata->teardown(spi);
+ out:
+ 	lbs_deb_leave_args(LBS_DEB_SPI, "err %d\n", err);
+ 	return err;
+@@ -1238,8 +1253,6 @@ static int libertas_spi_remove(struct spi_device *spi)
+ 	cancel_work_sync(&card->packet_work);
+ 	flush_workqueue(card->workqueue);
+ 	destroy_workqueue(card->workqueue);
+-	if (card->pdata->teardown)
+-		card->pdata->teardown(spi);
+ 	free_if_spi_card(card);
+ 	lbs_deb_leave(LBS_DEB_SPI);
+ 	return 0;
+@@ -1252,11 +1265,6 @@ static int if_spi_suspend(struct device *dev)
+ 
+ 	if (!card->suspended) {
+ 		lbs_suspend(card->priv);
+-		flush_workqueue(card->workqueue);
+-		disable_irq(spi->irq);
+-
+-		if (card->pdata->teardown)
+-			card->pdata->teardown(spi);
+ 		card->suspended = 1;
+ 	}
+ 
+-- 
+1.7.10.4
+

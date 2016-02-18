@@ -1,0 +1,27 @@
+From c98119996c88d582c59e2fa6f8d5273b43b4ff2f Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 14 Feb 2016 20:58:26 -0800
+Subject: [PATCH 09/19] pxamci: set default ocr_mask if none is supplied
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/mmc/host/pxamci.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
+index ce08896..69e38e3 100644
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -621,6 +621,9 @@ static int pxamci_of_init(struct platform_device *pdev)
+ 	pdata->gpio_card_ro =
+ 		of_get_named_gpio(np, "wp-gpios", 0);
+ 
++	/* Init default OCR mask */
++	pdata->ocr_mask = MMC_VDD_32_33 | MMC_VDD_33_34;
++
+ 	/* pxa-mmc specific */
+ 	pdata->gpio_power =
+ 		of_get_named_gpio(np, "pxa-mmc,gpio-power", 0);
+-- 
+1.7.10.4
+

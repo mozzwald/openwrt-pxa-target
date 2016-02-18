@@ -1,0 +1,50 @@
+From c3fd7292dbede8e202d45bc302eb7ce44e649485 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Mon, 15 Feb 2016 09:10:38 -0800
+Subject: [PATCH 14/19] pxa2xx-i2s: fix filter_fn argument
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ sound/soc/pxa/pxa2xx-i2s.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/pxa/pxa2xx-i2s.c b/sound/soc/pxa/pxa2xx-i2s.c
+index 96eb78d..d9ea696 100644
+--- a/sound/soc/pxa/pxa2xx-i2s.c
++++ b/sound/soc/pxa/pxa2xx-i2s.c
+@@ -18,6 +18,7 @@
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
++#include <linux/dma/pxa-dma.h>
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/initval.h>
+@@ -83,7 +84,11 @@ static struct pxa_i2s_port pxa_i2s;
+ static struct clk *clk_i2s;
+ static int clk_ena = 0;
+ 
+-static unsigned long pxa2xx_i2s_pcm_stereo_out_req = 3;
++
++static struct pxad_param pxa2xx_i2s_pcm_stereo_out_req = {
++	.drcmr = 3,
++	.prio = 0,
++};
+ static struct snd_dmaengine_dai_dma_data pxa2xx_i2s_pcm_stereo_out = {
+ 	.addr		= __PREG(SADR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_4_BYTES,
+@@ -91,7 +96,10 @@ static struct snd_dmaengine_dai_dma_data pxa2xx_i2s_pcm_stereo_out = {
+ 	.filter_data	= &pxa2xx_i2s_pcm_stereo_out_req,
+ };
+ 
+-static unsigned long pxa2xx_i2s_pcm_stereo_in_req = 2;
++static struct pxad_param pxa2xx_i2s_pcm_stereo_in_req = {
++	.drcmr = 2,
++	.prio = 0,
++};
+ static struct snd_dmaengine_dai_dma_data pxa2xx_i2s_pcm_stereo_in = {
+ 	.addr		= __PREG(SADR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_4_BYTES,
+-- 
+1.7.10.4
+

@@ -1,0 +1,30 @@
+From 0a3632beb0792989b9d61ddc130a81763ae163d7 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 14 Feb 2016 20:58:54 -0800
+Subject: [PATCH 10/19] pxa-ssp: set bus ID for mixed DT/legacy initalization
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ arch/arm/plat-pxa/ssp.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/plat-pxa/ssp.c b/arch/arm/plat-pxa/ssp.c
+index daa1a65..bb0babb 100644
+--- a/arch/arm/plat-pxa/ssp.c
++++ b/arch/arm/plat-pxa/ssp.c
+@@ -203,9 +203,12 @@ static int pxa_ssp_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (dev->of_node) {
++		static int port_id = 1;
+ 		const struct of_device_id *id =
+ 			of_match_device(of_match_ptr(pxa_ssp_of_ids), dev);
+ 		ssp->type = (int) id->data;
++		ssp->port_id = port_id;
++		port_id++;
+ 	} else {
+ 		const struct platform_device_id *id =
+ 			platform_get_device_id(pdev);
+-- 
+1.7.10.4
+

@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2016 OpenWrt.org
+
+START=15
+
+start() {
+        echo "Setting up Zipit Z2 Console..."
+        /usr/sbin/loadfont < /etc/5x8iz2s.psf
+        /sbin/loadkmap < /etc/z2.kmap
+}
+
+boot() {
+        start
+}

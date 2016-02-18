@@ -1,0 +1,44 @@
+From 7d55a7bfb78953125d4cb7e1f29ada53e0bb115b Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 14 Feb 2016 20:59:54 -0800
+Subject: [PATCH 11/19] gpio-pxa: use indexed IRQs for DT initalization
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/gpio/gpio-pxa.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpio/gpio-pxa.c b/drivers/gpio/gpio-pxa.c
+index df2ce55..0e626a9 100644
+--- a/drivers/gpio/gpio-pxa.c
++++ b/drivers/gpio/gpio-pxa.c
+@@ -23,6 +23,7 @@
+ #include <linux/irqchip/chained_irq.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
++#include <linux/of_irq.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/syscore_ops.h>
+@@ -595,9 +596,15 @@ static int pxa_gpio_probe(struct platform_device *pdev)
+ 	if (!pxa_last_gpio)
+ 		return -EINVAL;
+ 
+-	irq0 = platform_get_irq_byname(pdev, "gpio0");
+-	irq1 = platform_get_irq_byname(pdev, "gpio1");
+-	irq_mux = platform_get_irq_byname(pdev, "gpio_mux");
++	if (use_of) {
++		irq0 = of_irq_get(pdev->dev.of_node, 0);
++		irq1 = of_irq_get(pdev->dev.of_node, 1);
++		irq_mux = of_irq_get(pdev->dev.of_node, 2);
++	} else {
++		irq0 = platform_get_irq_byname(pdev, "gpio0");
++		irq1 = platform_get_irq_byname(pdev, "gpio1");
++		irq_mux = platform_get_irq_byname(pdev, "gpio_mux");
++	}
+ 	if ((irq0 > 0 && irq1 <= 0) || (irq0 <= 0 && irq1 > 0)
+ 		|| (irq_mux <= 0))
+ 		return -EINVAL;
+-- 
+1.7.10.4
+

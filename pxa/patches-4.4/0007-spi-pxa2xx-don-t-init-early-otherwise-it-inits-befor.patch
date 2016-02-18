@@ -1,0 +1,36 @@
+From fab4a658bd8b45bbabfc9633364efb9e9a23177c Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Feb 2016 19:55:41 -0800
+Subject: [PATCH 07/19] spi-pxa2xx: don't init early, otherwise it inits
+ before DMA driver
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/spi/spi-pxa2xx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index b25dc71..525db6d 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -1529,7 +1529,7 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
+ 	if (platform_info->enable_dma) {
+ 		status = pxa2xx_spi_dma_setup(drv_data);
+ 		if (status) {
+-			dev_dbg(dev, "no DMA channels available, using PIO\n");
++			dev_warn(dev, "no DMA channels available, using PIO\n");
+ 			platform_info->enable_dma = false;
+ 		}
+ 	}
+@@ -1733,7 +1733,7 @@ static int __init pxa2xx_spi_init(void)
+ {
+ 	return platform_driver_register(&driver);
+ }
+-subsys_initcall(pxa2xx_spi_init);
++module_init(pxa2xx_spi_init);
+ 
+ static void __exit pxa2xx_spi_exit(void)
+ {
+-- 
+1.7.10.4
+
