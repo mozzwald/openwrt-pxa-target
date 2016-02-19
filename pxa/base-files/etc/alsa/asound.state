@@ -1,0 +1,728 @@
+state.Z2 {
+	control.1 {
+		iface MIXER
+		name 'Capture Volume'
+		value.0 23
+		value.1 23
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 63'
+		}
+	}
+	control.2 {
+		iface MIXER
+		name 'Capture ZC Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'Capture Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Headphone Playback ZC Switch'
+		value.0 false
+		value.1 false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Speaker Playback ZC Switch'
+		value.0 true
+		value.1 true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 2
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'Playback De-emphasis'
+		value None
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 None
+			item.1 '32Khz'
+			item.2 '44.1Khz'
+			item.3 '48Khz'
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Capture Polarity'
+		value Normal
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Normal
+			item.1 'L Invert'
+			item.2 'R Invert'
+			item.3 'L + R Invert'
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'Playback 6dB Attenuate'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'Capture 6dB Attenuate'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'PCM Volume'
+		value.0 237
+		value.1 237
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 255'
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'Bass Boost'
+		value 'Linear Control'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Linear Control'
+			item.1 'Adaptive Boost'
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'Bass Filter'
+		value '130Hz @ 48kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '130Hz @ 48kHz'
+			item.1 '200Hz @ 48kHz'
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'Bass Volume'
+		value 13
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'Treble Volume'
+		value 14
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'Treble Cut-off'
+		value '8kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '8kHz'
+			item.1 '4kHz'
+		}
+	}
+	control.16 {
+		iface MIXER
+		name '3D Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.17 {
+		iface MIXER
+		name '3D Volume'
+		value 4
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+		}
+	}
+	control.18 {
+		iface MIXER
+		name '3D Lower Cut-off'
+		value '200Hz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '200Hz'
+			item.1 '500Hz'
+		}
+	}
+	control.19 {
+		iface MIXER
+		name '3D Upper Cut-off'
+		value '2.2kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '2.2kHz'
+			item.1 '1.5kHz'
+		}
+	}
+	control.20 {
+		iface MIXER
+		name '3D Mode'
+		value Capture
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Capture
+			item.1 Playback
+		}
+	}
+	control.21 {
+		iface MIXER
+		name 'ALC Capture Target Volume'
+		value 3
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+		}
+	}
+	control.22 {
+		iface MIXER
+		name 'ALC Capture Max Volume'
+		value 7
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+		}
+	}
+	control.23 {
+		iface MIXER
+		name 'ALC Capture Function'
+		value Off
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Off
+			item.1 Right
+			item.2 Left
+			item.3 Stereo
+		}
+	}
+	control.24 {
+		iface MIXER
+		name 'ALC Capture ZC Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.25 {
+		iface MIXER
+		name 'ALC Capture Hold Time'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+		}
+	}
+	control.26 {
+		iface MIXER
+		name 'ALC Capture Decay Time'
+		value 3
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+		}
+	}
+	control.27 {
+		iface MIXER
+		name 'ALC Capture Attack Time'
+		value 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+		}
+	}
+	control.28 {
+		iface MIXER
+		name 'ALC Capture NG Threshold'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 31'
+		}
+	}
+	control.29 {
+		iface MIXER
+		name 'ALC Capture NG Type'
+		value '2.2kHz'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 '2.2kHz'
+			item.1 '1.5kHz'
+		}
+	}
+	control.30 {
+		iface MIXER
+		name 'ALC Capture NG Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.31 {
+		iface MIXER
+		name 'Left ADC Capture Volume'
+		value 195
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+		}
+	}
+	control.32 {
+		iface MIXER
+		name 'Right ADC Capture Volume'
+		value 195
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 255'
+		}
+	}
+	control.33 {
+		iface MIXER
+		name 'ZC Timeout Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.34 {
+		iface MIXER
+		name 'Playback Invert Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.35 {
+		iface MIXER
+		name 'Right Speaker Playback Invert Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.36 {
+		iface MIXER
+		name 'Mic Boost'
+		value.0 0
+		value.1 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 3'
+		}
+	}
+	control.37 {
+		iface MIXER
+		name 'Bypass Left Playback Volume'
+		value.0 2
+		value.1 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 7'
+		}
+	}
+	control.38 {
+		iface MIXER
+		name 'Bypass Right Playback Volume'
+		value.0 2
+		value.1 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 7'
+		}
+	}
+	control.39 {
+		iface MIXER
+		name 'Bypass Mono Playback Volume'
+		value.0 2
+		value.1 2
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 7'
+		}
+	}
+	control.40 {
+		iface MIXER
+		name 'Mono Playback ZC Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.41 {
+		iface MIXER
+		name 'Headphone Playback Volume'
+		value.0 100
+		value.1 100
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 127'
+		}
+	}
+	control.42 {
+		iface MIXER
+		name 'Speaker Playback Volume'
+		value.0 121
+		value.1 121
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 127'
+		}
+	}
+	control.43 {
+		iface MIXER
+		name 'Mono Playback Volume'
+		value 121
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 127'
+		}
+	}
+	control.44 {
+		iface CARD
+		name 'Headphones Jack'
+		value true
+		comment {
+			access read
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.45 {
+		iface CARD
+		name 'Speaker Jack'
+		value true
+		comment {
+			access read
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.46 {
+		iface MIXER
+		name 'Left Mixer Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.47 {
+		iface MIXER
+		name 'Left Mixer Left Bypass Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.48 {
+		iface MIXER
+		name 'Left Mixer Right Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.49 {
+		iface MIXER
+		name 'Left Mixer Right Bypass Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.50 {
+		iface MIXER
+		name 'Right Mixer Left Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.51 {
+		iface MIXER
+		name 'Right Mixer Left Bypass Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.52 {
+		iface MIXER
+		name 'Right Mixer Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.53 {
+		iface MIXER
+		name 'Right Mixer Right Bypass Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.54 {
+		iface MIXER
+		name 'Mono Mixer Left Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.55 {
+		iface MIXER
+		name 'Mono Mixer Left Bypass Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.56 {
+		iface MIXER
+		name 'Mono Mixer Right Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.57 {
+		iface MIXER
+		name 'Mono Mixer Right Bypass Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.58 {
+		iface MIXER
+		name 'Left PGA Mux'
+		value 'Line 1'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Line 1'
+			item.1 'Line 2'
+			item.2 'Line 3'
+			item.3 Differential
+		}
+	}
+	control.59 {
+		iface MIXER
+		name 'Right PGA Mux'
+		value 'Line 1'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Line 1'
+			item.1 'Line 2'
+			item.2 'Line 3'
+			item.3 Differential
+		}
+	}
+	control.60 {
+		iface MIXER
+		name 'Left Line Mux'
+		value 'Line 1'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Line 1'
+			item.1 'Line 2'
+			item.2 'Line 3'
+			item.3 PGA
+			item.4 Differential
+		}
+	}
+	control.61 {
+		iface MIXER
+		name 'Right Line Mux'
+		value 'Line 1'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Line 1'
+			item.1 'Line 2'
+			item.2 'Line 3'
+			item.3 PGA
+			item.4 Differential
+		}
+	}
+	control.62 {
+		iface MIXER
+		name 'Out3 Mux'
+		value VREF
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 VREF
+			item.1 'ROUT1 + Vol'
+			item.2 MonoOut
+			item.3 ROUT1
+		}
+	}
+	control.63 {
+		iface MIXER
+		name 'Differential Mux'
+		value 'Line 1'
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 'Line 1'
+			item.1 'Line 2'
+		}
+	}
+	control.64 {
+		iface MIXER
+		name Route
+		value Stereo
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Stereo
+			item.1 'Mono (Left)'
+			item.2 'Mono (Right)'
+			item.3 'Digital Mono'
+		}
+	}
+}

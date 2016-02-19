@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2016 OpenWrt.org
+
+START=90
+
+start() {
+	echo "Setting up Zipit Z2 sound..."
+	/usr/sbin/alsactl restore -f /etc/alsa/asound.state
+}
+
+boot() {
+	start
+}
+
