@@ -9,7 +9,7 @@ define Profile/ZipitZ2
   NAME:=ZipitZ2
   PACKAGES:=\
 	kmod-libertas-spi libertas-spi-firmware kmod-sound-zipit-z2 \
-	kmod-pxa27x-udc wireless-tools wpa-supplicant-mini alsa-utils
+	wireless-tools wpa-supplicant-mini alsa-utils
 endef
 
 define Profile/ZipitZ2/Description

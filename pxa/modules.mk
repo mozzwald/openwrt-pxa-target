@@ -30,19 +30,3 @@ define KernelPackage/sound-zipit-z2/description
 endef
 
 $(eval $(call KernelPackage,sound-zipit-z2))
-
-define KernelPackage/pxa27x-udc
-  SUBMENU:=$(USB_MENU)
-  TITLE:=Support for PXA27x USB device controller
-  KCONFIG:=CONFIG_USB_PXA27X
-  DEPENDS:=@TARGET_pxa +USB_GADGET_SUPPORT:kmod-usb-gadget
-  FILES:=$(LINUX_DIR)/drivers/usb/gadget/udc/pxa27x_udc.ko
-  AUTOLOAD:=$(call AutoLoad,46,pxa27x_udc)
-  $(call AddDepends/usb)
-endef
-
-define KernelPackage/pxa27x-udc/description
-  Kernel support for PXA27x USB device.
-endef
-
-$(eval $(call KernelPackage,pxa27x-udc))
