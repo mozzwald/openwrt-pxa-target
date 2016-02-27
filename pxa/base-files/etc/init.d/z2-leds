@@ -5,10 +5,14 @@ START=90
 
 start() {
 	echo "Setting up Zipit Z2 LED's..."
-	echo "mmc0" > /sys/class/leds/z2:green:charged/trigger
-	echo "Z2-charging-blink-full-solid" > /sys/class/leds/z2\:amber\:charging/trigger
-	if [ "$(cat /sys/class/power_supply/Z2/status)" == "Charging" ]; then
-		echo "255" > /sys/class/leds/z2:amber:charging/brightness
+	echo "mmc0" > /sys/class/leds/z2\:green\:wifi/trigger
+	echo "Z2-full" > /sys/class/leds/z2\:green\:charged/trigger
+	echo "Z2-charging" > /sys/class/leds/z2\:amber\:charging/trigger
+	STAT=`cat /sys/class/power_supply/Z2/status)`
+	if [ "$STAT" == "Charging" ]; then
+		echo "255" > /sys/class/leds/z2\:amber\:charging/brightness
+	elif [ "$STAT" == "Full" ]; then
+		echo "255" > /sys/class/leds/z2\:green\:charged/brightness
 	fi
 }
 
