@@ -9,14 +9,13 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=pxa
 BOARDNAME:=Marvell/Intel PXA2xx
-FEATURES:=squashfs jffs2 usb usbgadget
+FEATURES:=jffs2 usb usbgadget
 MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
 
 KERNEL_PATCHVER:=4.4
 
 include $(INCLUDE_DIR)/target.mk
-DEFAULT_PACKAGES += \
-        kmod-leds-gpio
+DEFAULT_PACKAGES += 
 
 define Target/Description
 	Build images for PXA2xx systems, eg. Zipit Z2

@@ -1,0 +1,42 @@
+From 7910414a7bc6c0e059e2707fdf77acb5656f883d Mon Sep 17 00:00:00 2001
+From: Joseph Honold <mozzwald@gmail.com>
+Date: Tue, 23 Feb 2016 18:36:50 -0600
+Subject: [PATCH] ARM: Z2: update NOR flash partition layout
+
+Signed-off-by: Joseph Honold <mozzwald@gmail.com>
+---
+ arch/arm/boot/dts/zipit-z2.dts | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/boot/dts/zipit-z2.dts b/arch/arm/boot/dts/zipit-z2.dts
+index 1823921..59c15c1 100644
+--- a/arch/arm/boot/dts/zipit-z2.dts
++++ b/arch/arm/boot/dts/zipit-z2.dts
+@@ -39,17 +39,17 @@
+ 
+ 			ubootenv@40000 {
+ 				label = "U-Boot Environment";
+-				reg = <0x40000 0x20000>;
++				reg = <0x40000 0x10000>;
+ 			};
+ 
+-			flash@60000 {
+-				label = "Flash";
+-				reg = <0x60000 0x780000>;
++			kernel@50000 {
++				label = "Kernel";
++				reg = <0x50000 0x170000>;
+ 			};
+ 
+-			logo@7e0000  {
+-				label = "U-Boot Logo";
+-				reg = <0x7e0000 0x20000>;
++			filesystem@220000  {
++				label = "Filesystem";
++				reg = <0x220000 0>;
+ 			};
+ 		};
+ 
+-- 
+2.7.1
+

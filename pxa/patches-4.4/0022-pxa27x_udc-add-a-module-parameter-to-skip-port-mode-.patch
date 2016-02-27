@@ -1,0 +1,58 @@
+From 64be782b884f15253ce53bb32147c731ee3c4ddd Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 21 Feb 2016 21:23:25 -0800
+Subject: [PATCH 5/5] pxa27x_udc: add a module parameter to skip port mode init
+
+By default pxa27x_udc sets PORT 2 mode to device. But it's not a good
+idea when using USB flash as a boot device.
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/usb/gadget/udc/pxa27x_udc.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/usb/gadget/udc/pxa27x_udc.c b/drivers/usb/gadget/udc/pxa27x_udc.c
+index 4c74a7f..23feb63 100644
+--- a/drivers/usb/gadget/udc/pxa27x_udc.c
++++ b/drivers/usb/gadget/udc/pxa27x_udc.c
+@@ -78,6 +78,10 @@
+ #define	DRIVER_VERSION	"2008-04-18"
+ #define	DRIVER_DESC	"PXA 27x USB Device Controller driver"
+ 
++static bool skip_portmode_init;
++module_param(skip_portmode_init, bool, 0644);
++MODULE_PARM_DESC(skip_portmode_init, "Don't force PORT2 mode to device");
++
+ static const char driver_name[] = "pxa27x_udc";
+ static struct pxa_udc *the_controller;
+ 
+@@ -2556,15 +2560,17 @@ static int pxa_udc_probe(struct platform_device *pdev)
+ 
+ 	pxa_init_debugfs(udc);
+ 
+-	/* Switch to device mode by default */
+-	v = udc_readl(udc, UP2OCR);
+-	/* Disable D+ and D- pull down,
+-	   Transceiver output select = 0 -> UDC
+-	 */
+-	v &= ~(UP2OCR_HXS |UP2OCR_DPPDE | UP2OCR_DMPDE);
+-	/* Enable transceiver */
+-	v |= UP2OCR_HXOE;
+-	udc_writel(udc, UP2OCR, v);
++	if (!skip_portmode_init) {
++		/* Switch to device mode by default */
++		v = udc_readl(udc, UP2OCR);
++		/* Disable D+ and D- pull down,
++		   Transceiver output select = 0 -> UDC
++		 */
++		v &= ~(UP2OCR_HXS |UP2OCR_DPPDE | UP2OCR_DMPDE);
++		/* Enable transceiver */
++		v |= UP2OCR_HXOE;
++		udc_writel(udc, UP2OCR, v);
++	}
+ 
+ 	if (should_enable_udc(udc))
+ 		udc_enable(udc);
+-- 
+2.7.0
+

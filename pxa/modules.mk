@@ -11,6 +11,7 @@ define KernelPackage/sound-zipit-z2
 	CONFIG_SND_PXA2XX_SOC \
 	CONFIG_SND_PXA2XX_SOC_I2S \
  	CONFIG_SND_PXA2XX_AC97=n \
+	CONFIG_SND_PXA2XX_SOC_Z2=n \
 	CONFIG_SND_SIMPLE_CARD \
 	CONFIG_SND_SOC_WM8750
   FILES:= \
@@ -30,3 +31,16 @@ define KernelPackage/sound-zipit-z2/description
 endef
 
 $(eval $(call KernelPackage,sound-zipit-z2))
+
+define KernelPackage/cpufreq-conservative
+  TITLE:=CPUFreq conservative governor
+  KCONFIG:=CONFIG_CPU_FREQ_GOV_CONSERVATIVE
+  FILES:=$(LINUX_DIR)/drivers/cpufreq/cpufreq_conservative.ko
+  AUTOLOAD:=$(call AutoProbe,cpufreq_conservative)
+endef
+
+define KernelPackage/cpufreq-conservative/description
+ Conservative CPU Frequency Governor
+endef
+
+$(eval $(call KernelPackage,cpufreq-conservative))

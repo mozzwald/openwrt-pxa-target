@@ -9,6 +9,7 @@ define Profile/ZipitZ2
   NAME:=ZipitZ2
   PACKAGES:=\
 	kmod-libertas-spi libertas-spi-firmware kmod-sound-zipit-z2 \
+	kmod-cpufreq-conservative \
 	wireless-tools wpa-supplicant-mini alsa-utils
 endef
 

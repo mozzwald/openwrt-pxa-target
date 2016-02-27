@@ -1,0 +1,83 @@
+From 79fc94df75ab95ebfc6623f50097507d67545aab Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 21 Feb 2016 18:59:30 -0800
+Subject: [PATCH 4/5] pxamci: add module paratemers to ignore CRC errors and
+ enforce 1bit xfers
+
+pxamci driver tend to report bogus CRC errors on data xfers, it's possible
+to workaround it by forcing 1-bit mode, but it reduces bus bandwidth.
+Another option is to ignore CRC errors, but it's not safe. It's up to user
+to decide what way he prefers.
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/mmc/host/pxamci.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
+index 69e38e3..38dfbf6 100644
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -52,6 +52,14 @@
+ #define mmc_has_26MHz()		(cpu_is_pxa300() || cpu_is_pxa310() \
+ 				|| cpu_is_pxa935())
+ 
++static bool force_1_bit;
++module_param(force_1_bit, bool, 0644);
++MODULE_PARM_DESC(force_1_bit, "Force 1 bit data transfers.");
++
++static bool ignore_crc_errors;
++module_param(ignore_crc_errors, bool, 0644);
++MODULE_PARM_DESC(ignore_crc_errors, "Ignore CRC errors.");
++
+ struct pxamci_host {
+ 	struct mmc_host		*mmc;
+ 	spinlock_t		lock;
+@@ -329,8 +337,9 @@ static int pxamci_cmd_done(struct pxamci_host *host, unsigned int stat)
+ 		 * A bogus CRC error can appear if the msb of a 136 bit
+ 		 * response is a one.
+ 		 */
+-		if (cpu_is_pxa27x() &&
+-		    (cmd->flags & MMC_RSP_136 && cmd->resp[0] & 0x80000000))
++		if ((cpu_is_pxa27x() &&
++		    (cmd->flags & MMC_RSP_136 && cmd->resp[0] & 0x80000000)) ||
++		    ignore_crc_errors)
+ 			pr_debug("ignoring CRC from command %d - *risky*\n", cmd->opcode);
+ 		else
+ 			cmd->error = -EILSEQ;
+@@ -369,8 +378,15 @@ static int pxamci_data_done(struct pxamci_host *host, unsigned int stat)
+ 
+ 	if (stat & STAT_READ_TIME_OUT)
+ 		data->error = -ETIMEDOUT;
+-	else if (stat & (STAT_CRC_READ_ERROR|STAT_CRC_WRITE_ERROR))
+-		data->error = -EILSEQ;
++	else if (stat & (STAT_CRC_READ_ERROR|STAT_CRC_WRITE_ERROR)) {
++		if (ignore_crc_errors)
++			dev_dbg(mmc_dev(host->mmc),
++				"Ignoring data xfer crc error on %s\n",
++				data->flags & MMC_DATA_READ ?
++				"read" : "write");
++		else
++			data->error = -EILSEQ;
++	}
+ 
+ 	/*
+ 	 * There appears to be a hardware design bug here.  There seems to
+@@ -725,6 +741,14 @@ static int pxamci_probe(struct platform_device *pdev)
+ 				     MMC_CAP_SD_HIGHSPEED;
+ 	}
+ 
++	if (force_1_bit) {
++		dev_warn(mmc_dev(host->mmc), "Forcing 1-bit data transfers\n");
++		mmc->caps &= ~MMC_CAP_4_BIT_DATA;
++	}
++
++	if (ignore_crc_errors)
++		dev_warn(mmc_dev(host->mmc), "Will ignore CRC errors for data xfers\n");
++
+ 	spin_lock_init(&host->lock);
+ 	host->res = r;
+ 	host->irq = irq;
+-- 
+2.7.0
+
