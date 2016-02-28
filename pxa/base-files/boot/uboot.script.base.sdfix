@@ -1,0 +1,4 @@
+if ext2load mmc 0 0xa0000000 /boot/uImage ; then 
+	setenv bootargs console=tty0 console=ttyS2,115200 fbcon=rotate:3 cpufreq-pxa2xx.pxa27x_maxfreq=520 pxamci.ignore_crc_errors=1 pxamci.force_1_bit=1 root=/dev/mmcblk0p1 rootdelay=2 init=/etc/preinit
+	bootm 0xa0000000;
+fi
