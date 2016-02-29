@@ -8,6 +8,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 include $(INCLUDE_DIR)/host.mk
 
+SQUASHFSCOMP:=xz
+JFFS2_BLOCKSIZE:=64k
+
 define Image/BuildKernel
 	cat $(KDIR)/zImage $(DTS_DIR)/zipit-z2.dtb > $(KDIR_TMP)/zImage-dtb 
 	mkimage -A Arm \
@@ -37,10 +40,6 @@ endef
 
 define Image/Build/jffs2-64k
 	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=64k conv=sync
-endef
-
-define Image/Build/jffs2-128k
-	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=128k conv=sync
 endef
 
 define Image/Build/squashfs
