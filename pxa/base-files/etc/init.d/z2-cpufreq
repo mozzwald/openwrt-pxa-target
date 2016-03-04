@@ -1,0 +1,20 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2016 OpenWrt.org
+
+START=11
+
+start() {
+        echo "Setting up conservative governor..."
+        echo "conservative" > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+	echo "20" > /sys/devices/system/cpu/cpufreq/conservative/down_threshold
+	echo "10" > /sys/devices/system/cpu/cpufreq/conservative/freq_step
+	echo "1" > /sys/devices/system/cpu/cpufreq/conservative/ignore_nice_load
+	echo "10" > /sys/devices/system/cpu/cpufreq/conservative/sampling_down_factor
+	echo "80000" > /sys/devices/system/cpu/cpufreq/conservative/sampling_rate
+	echo "80000" > /sys/devices/system/cpu/cpufreq/conservative/sampling_rate_min
+	echo "92" > /sys/devices/system/cpu/cpufreq/conservative/up_threshold
+}
+
+boot() {
+        start
+}
