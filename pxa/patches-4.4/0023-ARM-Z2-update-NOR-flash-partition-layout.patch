@@ -1,18 +1,17 @@
-From 7910414a7bc6c0e059e2707fdf77acb5656f883d Mon Sep 17 00:00:00 2001
-From: Joseph Honold <mozzwald@gmail.com>
-Date: Tue, 23 Feb 2016 18:36:50 -0600
+From 09d4b2c0f16b6170f744f67fbb94659d5a2e8a9f Mon Sep 17 00:00:00 2001
+From: Joe Honold <mozzwald@gmail.com>
+Date: Wed, 2 Mar 2016 08:24:42 -0600
 Subject: [PATCH] ARM: Z2: update NOR flash partition layout
 
-Signed-off-by: Joseph Honold <mozzwald@gmail.com>
 ---
- arch/arm/boot/dts/zipit-z2.dts | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/zipit-z2.dts |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm/boot/dts/zipit-z2.dts b/arch/arm/boot/dts/zipit-z2.dts
-index 1823921..59c15c1 100644
+index 1823921..855c1a3 100644
 --- a/arch/arm/boot/dts/zipit-z2.dts
 +++ b/arch/arm/boot/dts/zipit-z2.dts
-@@ -39,17 +39,17 @@
+@@ -39,17 +39,21 @@
  
  			ubootenv@40000 {
  				label = "U-Boot Environment";
@@ -31,12 +30,16 @@ index 1823921..59c15c1 100644
 -			logo@7e0000  {
 -				label = "U-Boot Logo";
 -				reg = <0x7e0000 0x20000>;
-+			filesystem@220000  {
-+				label = "Filesystem";
-+				reg = <0x220000 0>;
++			squashfs@220000 {
++				label = "Squashfs";
++				reg = <0x220000 0x410000>;
++			};
++			jffs2@630000 {
++				label = "JFFS2";
++				reg = <0x630000 0>;
  			};
  		};
  
 -- 
-2.7.1
+1.7.10.4
 

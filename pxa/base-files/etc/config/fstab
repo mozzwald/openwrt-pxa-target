@@ -1,0 +1,21 @@
+config 'global'
+	option	anon_swap	'0'
+	option	anon_mount	'0'
+	option	auto_swap	'1'
+	option	auto_mount	'1'
+	option	delay_root	'10'
+	option	check_fs	'0'
+
+config mount
+        option	target		'/overlay'
+        option	device		'/dev/mtdblock4'
+        option	fstype		'jffs2'
+        option	options		'rw,sync'
+        option	enabled		'1'
+
+config mount
+	option	target		'/mnt/mmcblk0p1'
+	option	device		'/dev/mmcblk0p1'
+	option	fstype		'ext2'
+	option	options		'rw,noatime,errors=remount-ro'
+	option	enabled		'1'
