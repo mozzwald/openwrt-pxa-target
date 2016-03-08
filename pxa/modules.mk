@@ -33,6 +33,7 @@ endef
 $(eval $(call KernelPackage,sound-zipit-z2))
 
 define KernelPackage/cpufreq-conservative
+  SUBMENU:=Other modules
   TITLE:=CPUFreq conservative governor
   KCONFIG:=CONFIG_CPU_FREQ_GOV_CONSERVATIVE
   FILES:=$(LINUX_DIR)/drivers/cpufreq/cpufreq_conservative.ko
@@ -44,3 +45,22 @@ define KernelPackage/cpufreq-conservative/description
 endef
 
 $(eval $(call KernelPackage,cpufreq-conservative))
+
+define KernelPackage/usb-ohci-pxa27x
+  SUBMENU:=USB Support
+  TITLE:=PXA27x USB OHCI (Host) Support
+  KCONFIG:= \
+	CONFIG_USB_OHCI_HCD=m \
+	CONFIG_USB_OHCI_HCD_PXA27X=m
+  FILES:=$(LINUX_DIR)/drivers/usb/host/ohci-pxa27x.ko
+  AUTOLOAD:=$(call AutoLoad,60,ohci-pxa27x)
+  DEPENDS:=@TARGET_pxa +kmod-usb-ohci
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-ohci-pxa27x/description
+ USB Host support for PXA27x
+endef
+
+$(eval $(call KernelPackage,usb-ohci-pxa27x))
+
