@@ -64,3 +64,18 @@ endef
 
 $(eval $(call KernelPackage,usb-ohci-pxa27x))
 
+define KernelPackage/fancy-beeper
+  SUBMENU:=Other modules
+  TITLE:=Fancy Beeper Device
+  KCONFIG:=CONFIG_FANCY_BEEP=m
+  FILES:=$(LINUX_DIR)/drivers/char/beep.ko
+  AUTOLOAD:=$(call AutoLoad,60,beep)
+  DEPENDS:=@TARGET_pxa
+endef
+
+define KernelPackage/fancy-beeper/description
+ Fancy Beeper Char Device
+endef
+
+$(eval $(call KernelPackage,fancy-beeper))
+
