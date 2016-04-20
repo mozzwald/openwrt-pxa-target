@@ -79,3 +79,57 @@ endef
 
 $(eval $(call KernelPackage,fancy-beeper))
 
+define KernelPackage/soc-camera
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=SOC Camera Support
+  KCONFIG:=CONFIG_SOC_CAMERA=m
+  FILES:= \
+	$(LINUX_DIR)/drivers/media/v4l2-core/videobuf-core.ko \
+	$(LINUX_DIR)/drivers/media/platform/soc_camera/soc_camera.ko \
+	$(LINUX_DIR)/drivers/media/platform/soc_camera/soc_mediabus.ko
+  AUTOLOAD:=$(call AutoLoad,65,videobuf-core soc_mediabus soc_camera)
+# Dirty Fix: kmod-video-uvc isn't actually required, but videobuf2 package 
+# won't build without a driver that requires CONFIG_VIDEOBUF2_MEMOPS
+  DEPENDS:=+kmod-i2c-core +kmod-video-videobuf2 +kmod-video-uvc
+  $(call AddDepends/camera)
+endef
+
+define KernelPackage/soc-camera/description
+ SOC Camera Support
+endef
+
+$(eval $(call KernelPackage,soc-camera))
+
+define KernelPackage/pxa-camera
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=PXA27x Camera Support
+  KCONFIG:= \
+	CONFIG_VIDEOBUF_DMA_SG \
+	CONFIG_VIDEO_PXA27x
+  FILES:= \
+	$(LINUX_DIR)/drivers/media/v4l2-core/videobuf-dma-sg.ko \
+	$(LINUX_DIR)/drivers/media/platform/soc_camera/pxa_camera.ko
+  AUTOLOAD:=$(call AutoLoad,70,pxa-camera videobuf-dma-sg)
+  DEPENDS:=@TARGET_pxa kmod-soc-camera
+endef
+
+define KernelPackage/pxa-camera/description                                                                                                                        
+ PXA27x Camera Support
+endef
+
+$(eval $(call KernelPackage,pxa-camera))
+
+define KernelPackage/ov2640-camera
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=ov2640 Camera Support
+  KCONFIG:=CONFIG_SOC_CAMERA_OV2640
+  FILES:=$(LINUX_DIR)/drivers/media/i2c/soc_camera/ov2640.ko
+  AUTOLOAD:=$(call AutoLoad,75,ov2640)
+  DEPENDS:=kmod-soc-camera
+endef
+
+define KernelPackage/ov2640-camera/description
+ ov2640 Camera Support
+endef
+
+$(eval $(call KernelPackage,ov2640-camera))
