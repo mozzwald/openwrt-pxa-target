@@ -47,7 +47,7 @@ define Image/Build/squashfs
 	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-$(1).img bs=64k conv=sync
 	mkdir -p $(KDIR_TMP)/empty_jffs
 	$(STAGING_DIR_HOST)/bin/mkfs.jffs2  -v -X lzma -y 80:lzma -y 70:zlib \
-		--pad=1900544 --little-endian --squash -e 64KiB \
+		--pad=1441792 --little-endian --squash -e 64KiB \
 		-d '$(KDIR_TMP)/empty_jffs' \
 		-o '$(BIN_DIR)/$(IMG_PREFIX)-overlay.jffs2'  
 endef

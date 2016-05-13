@@ -24,19 +24,19 @@ index 1823921..855c1a3 100644
 -				reg = <0x60000 0x780000>;
 +			kernel@50000 {
 +				label = "Kernel";
-+				reg = <0x50000 0x170000>;
++				reg = <0x50000 0x190000>;
  			};
  
 -			logo@7e0000  {
 -				label = "U-Boot Logo";
 -				reg = <0x7e0000 0x20000>;
-+			squashfs@220000 {
++			squashfs@240000 {
 +				label = "Squashfs";
-+				reg = <0x220000 0x410000>;
++				reg = <0x240000 0x400000>;
 +			};
-+			jffs2@630000 {
++			jffs2@640000 {
 +				label = "JFFS2";
-+				reg = <0x630000 0>;
++				reg = <0x640000 0>;
  			};
  		};
  
