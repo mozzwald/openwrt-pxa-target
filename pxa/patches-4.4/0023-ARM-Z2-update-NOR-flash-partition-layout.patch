@@ -30,13 +30,13 @@ index 1823921..855c1a3 100644
 -			logo@7e0000  {
 -				label = "U-Boot Logo";
 -				reg = <0x7e0000 0x20000>;
-+			squashfs@240000 {
++			squashfs@1e0000 {
 +				label = "Squashfs";
-+				reg = <0x240000 0x400000>;
++				reg = <0x1e0000 0x410000>;
 +			};
-+			jffs2@640000 {
++			jffs2@5f0000 {
 +				label = "JFFS2";
-+				reg = <0x640000 0>;
++				reg = <0x5f0000 0>;
  			};
  		};
  
