@@ -1,10 +1,11 @@
 # openwrt-pxa-target
-This target feed adds support for the Zipit Z2 (pxa) platform to openwrt. It has been tested with openwrt trunk as of commit [7d00e0c14f2ac50f6c72a0a6388d271ac87a85ed](https://github.com/openwrt/openwrt/commit/7d00e0c14f2ac50f6c72a0a6388d271ac87a85ed)
+This target feed adds support for the Zipit Z2 (pxa) platform to openwrt. It has been tested with openwrt trunk as of commit [1e22c9b9eb691878156dfe32fb1e117737f1d248](https://github.com/openwrt/openwrt/commit/1e22c9b9eb691878156dfe32fb1e117737f1d248)
 
 ## Usage:
-Download openwrt trunk with git:
+Download openwrt trunk with git and checkout commit 1e22c9b9eb691878156dfe32fb1e117737f1d248:
 
      git clone https://github.com/openwrt/openwrt.git openwrt-trunk
+     git checkout 1e22c9b9eb691878156dfe32fb1e117737f1d248
 
 Change to your openwrt directory and edit _feeds.conf_ adding a line:
 

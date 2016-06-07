@@ -135,7 +135,7 @@ CONFIG_DISPLAY_SUPPORT=y
 CONFIG_BUILD_PATENTED=y
 # CONFIG_BUILD_NLS is not set
 CONFIG_SHADOW_PASSWORDS=y
-# CONFIG_CLEAN_IPKG is not set
+CONFIG_CLEAN_IPKG=y
 # CONFIG_COLLECT_KERNEL_DEBUG is not set
 
 #
@@ -2200,10 +2200,10 @@ CONFIG_PACKAGE_libertas-usb-firmware=m
 #
 # bsd-games
 #
-# CONFIG_PACKAGE_backgammon is not set
+CONFIG_PACKAGE_backgammon=m
 # CONFIG_PACKAGE_primes is not set
-# CONFIG_PACKAGE_tetris is not set
-# CONFIG_PACKAGE_worm is not set
+CONFIG_PACKAGE_tetris=m
+CONFIG_PACKAGE_worm=m
 # CONFIG_PACKAGE_Tile is not set
 # CONFIG_PACKAGE_alex4 is not set
 # CONFIG_PACKAGE_alex4-data is not set
@@ -2215,6 +2215,8 @@ CONFIG_PACKAGE_burgerspace=m
 # CONFIG_PACKAGE_fceu is not set
 # CONFIG_PACKAGE_fheroes2 is not set
 CONFIG_PACKAGE_flatzebra=m
+CONFIG_PACKAGE_freedoom1=m
+CONFIG_PACKAGE_freedoom2=m
 # CONFIG_PACKAGE_freedroid is not set
 # CONFIG_PACKAGE_frotz-games is not set
 # CONFIG_PACKAGE_gnuchess is not set
@@ -2240,9 +2242,16 @@ CONFIG_PACKAGE_wolf4sdl=m
 # GMenu2X
 #
 CONFIG_PACKAGE_gmenu2x=y
+CONFIG_PACKAGE_gmenu2x-alsamixer=y
+CONFIG_PACKAGE_gmenu2x-burgerspace=m
+CONFIG_PACKAGE_gmenu2x-freedoom1=m
+CONFIG_PACKAGE_gmenu2x-freedoom2=m
 CONFIG_PACKAGE_gmenu2x-gmu=m
 CONFIG_PACKAGE_gmenu2x-links=m
+CONFIG_PACKAGE_gmenu2x-nano=y
+CONFIG_PACKAGE_gmenu2x-netsurf=m
 CONFIG_PACKAGE_gmenu2x-ohboy=m
+CONFIG_PACKAGE_gmenu2x-supertux=m
 CONFIG_PACKAGE_gmenu2x-tmux=y
 
 #
@@ -2276,7 +2285,7 @@ CONFIG_PACKAGE_kmod-scsi-core=y
 # CONFIG_PACKAGE_kmod-crypto-cbc is not set
 # CONFIG_PACKAGE_kmod-crypto-ccm is not set
 # CONFIG_PACKAGE_kmod-crypto-cmac is not set
-# CONFIG_PACKAGE_kmod-crypto-crc32c is not set
+CONFIG_PACKAGE_kmod-crypto-crc32c=m
 # CONFIG_PACKAGE_kmod-crypto-ctr is not set
 # CONFIG_PACKAGE_kmod-crypto-deflate is not set
 # CONFIG_PACKAGE_kmod-crypto-des is not set
@@ -2373,8 +2382,8 @@ CONFIG_PACKAGE_kmod-i2c-core=y
 #
 # Input modules
 #
-# CONFIG_PACKAGE_kmod-hid is not set
-# CONFIG_PACKAGE_kmod-hid-generic is not set
+CONFIG_PACKAGE_kmod-hid=m
+CONFIG_PACKAGE_kmod-hid-generic=m
 CONFIG_PACKAGE_kmod-input-core=y
 CONFIG_PACKAGE_kmod-input-evdev=y
 # CONFIG_PACKAGE_kmod-input-gpio-encoder is not set
@@ -2407,7 +2416,7 @@ CONFIG_PACKAGE_kmod-ledtrig-timer=y
 CONFIG_PACKAGE_kmod-lib-crc-ccitt=y
 # CONFIG_PACKAGE_kmod-lib-crc-itu-t is not set
 CONFIG_PACKAGE_kmod-lib-crc16=y
-# CONFIG_PACKAGE_kmod-lib-crc32c is not set
+CONFIG_PACKAGE_kmod-lib-crc32c=m
 # CONFIG_PACKAGE_kmod-lib-crc7 is not set
 # CONFIG_PACKAGE_kmod-lib-crc8 is not set
 CONFIG_PACKAGE_kmod-lib-lz4=y
@@ -2535,7 +2544,14 @@ CONFIG_PACKAGE_kmod-nls-utf8=y
 # CONFIG_PACKAGE_kmod-appletalk is not set
 # CONFIG_PACKAGE_kmod-atm is not set
 # CONFIG_PACKAGE_kmod-ax25 is not set
-# CONFIG_PACKAGE_kmod-batman-adv-devel is not set
+CONFIG_PACKAGE_kmod-batman-adv-devel=m
+# CONFIG_KMOD_BATMAN_ADV_DEVEL_DEBUG_LOG is not set
+CONFIG_KMOD_BATMAN_ADV_DEVEL_BLA=y
+CONFIG_KMOD_BATMAN_ADV_DEVEL_DAT=y
+CONFIG_KMOD_BATMAN_ADV_DEVEL_MCAST=y
+# CONFIG_KMOD_BATMAN_ADV_DEVEL_NC is not set
+# CONFIG_KMOD_BATMAN_ADV_DEVEL_BATMAN_V is not set
+CONFIG_KMOD_BATMAN_ADV_DEVEL_BATMAN_BRANCH="v2016.1"
 # CONFIG_PACKAGE_kmod-bonding is not set
 # CONFIG_PACKAGE_kmod-bridge is not set
 # CONFIG_PACKAGE_kmod-capi is not set
@@ -2653,19 +2669,40 @@ CONFIG_PACKAGE_kmod-sound-zipit-z2=y
 CONFIG_PACKAGE_kmod-usb-core=y
 # CONFIG_PACKAGE_kmod-usb-dwc2 is not set
 # CONFIG_PACKAGE_kmod-usb-dwc3 is not set
-# CONFIG_PACKAGE_kmod-usb-eth-gadget is not set
+CONFIG_PACKAGE_kmod-usb-eth-gadget=m
 CONFIG_PACKAGE_kmod-usb-gadget=y
-# CONFIG_PACKAGE_kmod-usb-hid is not set
+CONFIG_PACKAGE_kmod-usb-hid=m
 CONFIG_PACKAGE_kmod-usb-lib-composite=y
-# CONFIG_PACKAGE_kmod-usb-mass-storage-gadget is not set
+CONFIG_PACKAGE_kmod-usb-mass-storage-gadget=m
 # CONFIG_PACKAGE_kmod-usb-net is not set
 CONFIG_PACKAGE_kmod-usb-ohci=y
 CONFIG_PACKAGE_kmod-usb-ohci-pxa27x=y
 # CONFIG_PACKAGE_kmod-usb-printer is not set
-# CONFIG_PACKAGE_kmod-usb-serial is not set
-# CONFIG_PACKAGE_kmod-usb-serial-gadget is not set
+CONFIG_PACKAGE_kmod-usb-serial=m
+CONFIG_PACKAGE_kmod-usb-serial-ark3116=m
+CONFIG_PACKAGE_kmod-usb-serial-belkin=m
+CONFIG_PACKAGE_kmod-usb-serial-ch341=m
+CONFIG_PACKAGE_kmod-usb-serial-cp210x=m
+CONFIG_PACKAGE_kmod-usb-serial-cypress-m8=m
+CONFIG_PACKAGE_kmod-usb-serial-dmx_usb_module=m
+CONFIG_PACKAGE_kmod-usb-serial-ftdi=m
+CONFIG_PACKAGE_kmod-usb-serial-gadget=m
+CONFIG_PACKAGE_kmod-usb-serial-garmin=m
+CONFIG_PACKAGE_kmod-usb-serial-ipw=m
+CONFIG_PACKAGE_kmod-usb-serial-keyspan=m
+CONFIG_PACKAGE_kmod-usb-serial-mct=m
+CONFIG_PACKAGE_kmod-usb-serial-mos7720=m
+CONFIG_PACKAGE_kmod-usb-serial-option=m
+CONFIG_PACKAGE_kmod-usb-serial-oti6858=m
+CONFIG_PACKAGE_kmod-usb-serial-pl2303=m
+CONFIG_PACKAGE_kmod-usb-serial-qualcomm=m
+CONFIG_PACKAGE_kmod-usb-serial-sierrawireless=m
+CONFIG_PACKAGE_kmod-usb-serial-simple=m
+CONFIG_PACKAGE_kmod-usb-serial-ti-usb=m
+CONFIG_PACKAGE_kmod-usb-serial-visor=m
+CONFIG_PACKAGE_kmod-usb-serial-wwan=m
 CONFIG_PACKAGE_kmod-usb-storage=y
-# CONFIG_PACKAGE_kmod-usb-storage-extras is not set
+CONFIG_PACKAGE_kmod-usb-storage-extras=m
 # CONFIG_PACKAGE_kmod-usb-test is not set
 # CONFIG_PACKAGE_kmod-usb-uhci is not set
 # CONFIG_PACKAGE_kmod-usb-wdm is not set
@@ -3106,7 +3143,7 @@ CONFIG_PACKAGE_liblzma=m
 #
 # Filesystem
 #
-# CONFIG_PACKAGE_libacl is not set
+CONFIG_PACKAGE_libacl=m
 CONFIG_PACKAGE_libattr=m
 CONFIG_PACKAGE_libext2fs=y
 # CONFIG_PACKAGE_libfuse is not set
@@ -3275,7 +3312,7 @@ CONFIG_PACKAGE_libyaml=m
 #
 # SSL
 #
-# CONFIG_PACKAGE_libcyassl is not set
+CONFIG_PACKAGE_libcyassl=m
 CONFIG_PACKAGE_libgnutls=m
 
 #
@@ -3292,7 +3329,7 @@ CONFIG_GNUTLS_PSK=y
 CONFIG_GNUTLS_ANON=y
 # CONFIG_GNUTLS_PKCS11 is not set
 # CONFIG_GNUTLS_EXT_LIBTASN1 is not set
-# CONFIG_PACKAGE_libmbedtls is not set
+CONFIG_PACKAGE_libmbedtls=m
 CONFIG_PACKAGE_libopenssl=y
 CONFIG_OPENSSL_WITH_EC=y
 # CONFIG_OPENSSL_WITH_EC2M is not set
@@ -3336,7 +3373,58 @@ CONFIG_PACKAGE_alsa-lib=y
 # CONFIG_PACKAGE_ascii-paint is not set
 # CONFIG_PACKAGE_bind-libs is not set
 # CONFIG_PACKAGE_bluez-libs is not set
-# CONFIG_PACKAGE_boost is not set
+CONFIG_PACKAGE_boost=m
+
+#
+# Select Boost Options
+#
+
+#
+# Boost compilation options.
+#
+# CONFIG_boost-shared-libs is not set
+# CONFIG_boost-static-libs is not set
+CONFIG_boost-static-and-shared-libs=y
+CONFIG_boost-runtime-shared=y
+CONFIG_boost-variant-release=y
+# CONFIG_boost-variant-debug is not set
+# CONFIG_boost-variant-profile is not set
+# CONFIG_boost-use-name-tags is not set
+
+#
+# Select Boost libraries
+#
+
+#
+# Libraries
+#
+# CONFIG_boost-libs-all is not set
+# CONFIG_boost-test-pkg is not set
+# CONFIG_boost-coroutine2 is not set
+# CONFIG_boost-graph-parallel is not set
+# CONFIG_PACKAGE_boost-atomic is not set
+# CONFIG_PACKAGE_boost-chrono is not set
+CONFIG_PACKAGE_boost-container=m
+# CONFIG_PACKAGE_boost-context is not set
+# CONFIG_PACKAGE_boost-coroutine is not set
+# CONFIG_PACKAGE_boost-date_time is not set
+# CONFIG_PACKAGE_boost-filesystem is not set
+# CONFIG_PACKAGE_boost-graph is not set
+# CONFIG_PACKAGE_boost-iostreams is not set
+# CONFIG_PACKAGE_boost-locale is not set
+# CONFIG_PACKAGE_boost-log is not set
+# CONFIG_PACKAGE_boost-math is not set
+# CONFIG_PACKAGE_boost-program_options is not set
+# CONFIG_PACKAGE_boost-python is not set
+# CONFIG_PACKAGE_boost-python3 is not set
+# CONFIG_PACKAGE_boost-random is not set
+# CONFIG_PACKAGE_boost-regex is not set
+# CONFIG_PACKAGE_boost-serialization is not set
+# CONFIG_PACKAGE_boost-signals is not set
+# CONFIG_PACKAGE_boost-system is not set
+# CONFIG_PACKAGE_boost-thread is not set
+# CONFIG_PACKAGE_boost-timer is not set
+# CONFIG_PACKAGE_boost-wave is not set
 # CONFIG_PACKAGE_ccid is not set
 # CONFIG_PACKAGE_check is not set
 # CONFIG_PACKAGE_classpath is not set
@@ -3521,10 +3609,10 @@ CONFIG_PACKAGE_libmikmod=m
 # CONFIG_PACKAGE_libmosquitto is not set
 # CONFIG_PACKAGE_libmosquitto-nossl is not set
 # CONFIG_PACKAGE_libmosquittopp is not set
-# CONFIG_PACKAGE_libmount is not set
+CONFIG_PACKAGE_libmount=m
 # CONFIG_PACKAGE_libmpc is not set
 CONFIG_PACKAGE_libmpcdec=m
-# CONFIG_PACKAGE_libmpdclient is not set
+CONFIG_PACKAGE_libmpdclient=m
 # CONFIG_PACKAGE_libmpeg2 is not set
 CONFIG_PACKAGE_libmpg123=m
 # CONFIG_PACKAGE_libmraa is not set
@@ -3647,10 +3735,10 @@ CONFIG_PACKAGE_libuclient=y
 CONFIG_PACKAGE_libusb-1.0=m
 CONFIG_PACKAGE_libusb-compat=m
 # CONFIG_PACKAGE_libusbmuxd is not set
-# CONFIG_PACKAGE_libustream-cyassl is not set
-# CONFIG_PACKAGE_libustream-mbedtls is not set
-# CONFIG_PACKAGE_libustream-openssl is not set
-# CONFIG_PACKAGE_libustream-polarssl is not set
+CONFIG_PACKAGE_libustream-cyassl=m
+CONFIG_PACKAGE_libustream-mbedtls=m
+CONFIG_PACKAGE_libustream-openssl=m
+CONFIG_PACKAGE_libustream-polarssl=m
 CONFIG_PACKAGE_libutf8proc=m
 CONFIG_PACKAGE_libuuid=y
 # CONFIG_PACKAGE_libuv is not set
@@ -3773,7 +3861,7 @@ CONFIG_PACKAGE_gmu=m
 # CONFIG_PACKAGE_gstreamer1-utils is not set
 # CONFIG_PACKAGE_icecast is not set
 # CONFIG_PACKAGE_lcdgrilo is not set
-# CONFIG_PACKAGE_milkytracker is not set
+CONFIG_PACKAGE_milkytracker=m
 CONFIG_PACKAGE_mjpg-streamer=m
 # CONFIG_MJPG_STREAMER_V4L2 is not set
 # CONFIG_MJPG_STREAMER_INPUT_FILE is not set
@@ -4193,7 +4281,8 @@ CONFIG_PACKAGE_netsurf-buildsystem=m
 # CONFIG_PACKAGE_apinger is not set
 # CONFIG_PACKAGE_arp-scan is not set
 # CONFIG_PACKAGE_authsae is not set
-# CONFIG_PACKAGE_batctl-devel is not set
+CONFIG_PACKAGE_batctl-devel=m
+CONFIG_BATCTL_DEVEL_BATCTL_BRANCH="v2016.1"
 # CONFIG_PACKAGE_bmon is not set
 # CONFIG_PACKAGE_bwm-ng is not set
 # CONFIG_PACKAGE_chat is not set
@@ -4356,10 +4445,10 @@ CONFIG_PACKAGE_wpa-supplicant-mini=y
 # CONFIG_PACKAGE_listener is not set
 # CONFIG_PACKAGE_madplay is not set
 # CONFIG_PACKAGE_madplay-alsa is not set
-# CONFIG_PACKAGE_mpc is not set
-# CONFIG_PACKAGE_mpd-mini is not set
+CONFIG_PACKAGE_mpc=m
+CONFIG_PACKAGE_mpd-mini=m
 CONFIG_PACKAGE_mpg123=m
-# CONFIG_PACKAGE_ncmpc is not set
+CONFIG_PACKAGE_ncmpc=m
 # CONFIG_PACKAGE_pianobar is not set
 # CONFIG_PACKAGE_pianod is not set
 # CONFIG_PACKAGE_pianod-client is not set
@@ -4488,14 +4577,14 @@ CONFIG_PACKAGE_nfs-utils=m
 # CONFIG_PACKAGE_fbsize is not set
 # CONFIG_PACKAGE_fbterm is not set
 # CONFIG_PACKAGE_jfbterm is not set
-# CONFIG_PACKAGE_minicom is not set
+CONFIG_PACKAGE_minicom=m
 # CONFIG_PACKAGE_mouse-emul is not set
 # CONFIG_PACKAGE_nanoterm is not set
-# CONFIG_PACKAGE_picocom is not set
+CONFIG_PACKAGE_picocom=m
 # CONFIG_PACKAGE_script-utils is not set
-# CONFIG_PACKAGE_setterm is not set
+CONFIG_PACKAGE_setterm=m
 # CONFIG_PACKAGE_wall is not set
-# CONFIG_PACKAGE_zipit-cyrillic is not set
+CONFIG_PACKAGE_zipit-cyrillic=m
 
 #
 # app
@@ -4587,7 +4676,107 @@ CONFIG_PACKAGE_calcurse=m
 # CONFIG_PACKAGE_comgt is not set
 # CONFIG_PACKAGE_comgt-directip is not set
 # CONFIG_PACKAGE_comgt-ncm is not set
-# CONFIG_PACKAGE_coreutils is not set
+CONFIG_PACKAGE_coreutils=m
+CONFIG_PACKAGE_coreutils-base64=m
+CONFIG_PACKAGE_coreutils-basename=m
+CONFIG_PACKAGE_coreutils-cat=m
+CONFIG_PACKAGE_coreutils-chcon=m
+CONFIG_PACKAGE_coreutils-chgrp=m
+CONFIG_PACKAGE_coreutils-chmod=m
+CONFIG_PACKAGE_coreutils-chown=m
+CONFIG_PACKAGE_coreutils-chroot=m
+CONFIG_PACKAGE_coreutils-cksum=m
+CONFIG_PACKAGE_coreutils-comm=m
+CONFIG_PACKAGE_coreutils-cp=m
+CONFIG_PACKAGE_coreutils-csplit=m
+CONFIG_PACKAGE_coreutils-cut=m
+CONFIG_PACKAGE_coreutils-date=m
+CONFIG_PACKAGE_coreutils-dd=m
+CONFIG_PACKAGE_coreutils-dir=m
+CONFIG_PACKAGE_coreutils-dircolors=m
+CONFIG_PACKAGE_coreutils-dirname=m
+CONFIG_PACKAGE_coreutils-du=m
+CONFIG_PACKAGE_coreutils-echo=m
+CONFIG_PACKAGE_coreutils-env=m
+CONFIG_PACKAGE_coreutils-expand=m
+CONFIG_PACKAGE_coreutils-expr=m
+CONFIG_PACKAGE_coreutils-factor=m
+CONFIG_PACKAGE_coreutils-false=m
+CONFIG_PACKAGE_coreutils-fmt=m
+CONFIG_PACKAGE_coreutils-fold=m
+CONFIG_PACKAGE_coreutils-groups=m
+CONFIG_PACKAGE_coreutils-head=m
+CONFIG_PACKAGE_coreutils-hostid=m
+CONFIG_PACKAGE_coreutils-id=m
+CONFIG_PACKAGE_coreutils-install=m
+CONFIG_PACKAGE_coreutils-join=m
+CONFIG_PACKAGE_coreutils-kill=m
+CONFIG_PACKAGE_coreutils-link=m
+CONFIG_PACKAGE_coreutils-ln=m
+CONFIG_PACKAGE_coreutils-logname=m
+CONFIG_PACKAGE_coreutils-ls=m
+CONFIG_PACKAGE_coreutils-md5sum=m
+CONFIG_PACKAGE_coreutils-mkdir=m
+CONFIG_PACKAGE_coreutils-mkfifo=m
+CONFIG_PACKAGE_coreutils-mknod=m
+CONFIG_PACKAGE_coreutils-mktemp=m
+CONFIG_PACKAGE_coreutils-mv=m
+CONFIG_PACKAGE_coreutils-nice=m
+CONFIG_PACKAGE_coreutils-nl=m
+CONFIG_PACKAGE_coreutils-nohup=m
+CONFIG_PACKAGE_coreutils-nproc=m
+CONFIG_PACKAGE_coreutils-od=m
+CONFIG_PACKAGE_coreutils-paste=m
+CONFIG_PACKAGE_coreutils-pathchk=m
+CONFIG_PACKAGE_coreutils-pinky=m
+CONFIG_PACKAGE_coreutils-pr=m
+CONFIG_PACKAGE_coreutils-printenv=m
+CONFIG_PACKAGE_coreutils-printf=m
+CONFIG_PACKAGE_coreutils-ptx=m
+CONFIG_PACKAGE_coreutils-pwd=m
+CONFIG_PACKAGE_coreutils-readlink=m
+CONFIG_PACKAGE_coreutils-realpath=m
+CONFIG_PACKAGE_coreutils-rm=m
+CONFIG_PACKAGE_coreutils-rmdir=m
+CONFIG_PACKAGE_coreutils-runcon=m
+CONFIG_PACKAGE_coreutils-seq=m
+CONFIG_PACKAGE_coreutils-sha1sum=m
+CONFIG_PACKAGE_coreutils-sha224sum=m
+CONFIG_PACKAGE_coreutils-sha256sum=m
+CONFIG_PACKAGE_coreutils-sha384sum=m
+CONFIG_PACKAGE_coreutils-sha512sum=m
+CONFIG_PACKAGE_coreutils-shred=m
+CONFIG_PACKAGE_coreutils-shuf=m
+CONFIG_PACKAGE_coreutils-sleep=m
+CONFIG_PACKAGE_coreutils-sort=m
+CONFIG_PACKAGE_coreutils-split=m
+CONFIG_PACKAGE_coreutils-stat=m
+CONFIG_PACKAGE_coreutils-stdbuf=m
+CONFIG_PACKAGE_coreutils-stty=m
+CONFIG_PACKAGE_coreutils-sum=m
+CONFIG_PACKAGE_coreutils-sync=m
+CONFIG_PACKAGE_coreutils-tac=m
+CONFIG_PACKAGE_coreutils-tail=m
+CONFIG_PACKAGE_coreutils-tee=m
+CONFIG_PACKAGE_coreutils-test=m
+CONFIG_PACKAGE_coreutils-timeout=m
+CONFIG_PACKAGE_coreutils-touch=m
+CONFIG_PACKAGE_coreutils-tr=m
+CONFIG_PACKAGE_coreutils-true=m
+CONFIG_PACKAGE_coreutils-truncate=m
+CONFIG_PACKAGE_coreutils-tsort=m
+CONFIG_PACKAGE_coreutils-tty=m
+CONFIG_PACKAGE_coreutils-uname=m
+CONFIG_PACKAGE_coreutils-unexpand=m
+CONFIG_PACKAGE_coreutils-uniq=m
+CONFIG_PACKAGE_coreutils-unlink=m
+CONFIG_PACKAGE_coreutils-uptime=m
+CONFIG_PACKAGE_coreutils-users=m
+CONFIG_PACKAGE_coreutils-vdir=m
+CONFIG_PACKAGE_coreutils-wc=m
+CONFIG_PACKAGE_coreutils-who=m
+CONFIG_PACKAGE_coreutils-whoami=m
+CONFIG_PACKAGE_coreutils-yes=m
 # CONFIG_PACKAGE_crelay is not set
 # CONFIG_PACKAGE_cryptsetup is not set
 # CONFIG_PACKAGE_cryptsetup-openssl is not set
@@ -4597,7 +4786,7 @@ CONFIG_PACKAGE_calcurse=m
 # CONFIG_PACKAGE_cxxtools is not set
 # CONFIG_PACKAGE_dbus is not set
 # CONFIG_PACKAGE_dfu-programmer is not set
-# CONFIG_PACKAGE_dialog is not set
+CONFIG_PACKAGE_dialog=m
 # CONFIG_PACKAGE_dmesg is not set
 # CONFIG_PACKAGE_dropbearconvert is not set
 # CONFIG_PACKAGE_dump1090 is not set
@@ -4637,6 +4826,7 @@ CONFIG_PACKAGE_file=m
 # CONFIG_PACKAGE_husky is not set
 # CONFIG_PACKAGE_hwclock is not set
 CONFIG_PACKAGE_i2c-tools=m
+# CONFIG_PACKAGE_icarus-miner is not set
 # CONFIG_PACKAGE_iconv is not set
 # CONFIG_PACKAGE_ikog is not set
 CONFIG_PACKAGE_imgv=m
@@ -4675,7 +4865,18 @@ CONFIG_PACKAGE_imgv=m
 # CONFIG_PACKAGE_mandoc is not set
 # CONFIG_PACKAGE_mathomatic is not set
 # CONFIG_PACKAGE_mbtools is not set
-# CONFIG_PACKAGE_mc is not set
+CONFIG_PACKAGE_mc=m
+
+#
+# Configuration
+#
+CONFIG_MC_DIFFVIEWER=y
+CONFIG_MC_EDITOR=y
+CONFIG_MC_SUBSHELL=y
+# CONFIG_MC_LARGEFILE is not set
+# CONFIG_MC_BACKGROUND is not set
+CONFIG_MC_CHARSET=y
+# CONFIG_MC_VFS is not set
 # CONFIG_PACKAGE_mcookie is not set
 # CONFIG_PACKAGE_mdadm is not set
 # CONFIG_PACKAGE_mediatomb is not set
@@ -4788,7 +4989,7 @@ CONFIG_PACKAGE_usbutils=m
 # CONFIG_PACKAGE_xsltproc is not set
 # CONFIG_PACKAGE_xxd is not set
 # CONFIG_PACKAGE_yunbridge is not set
-# CONFIG_PACKAGE_zgv is not set
+CONFIG_PACKAGE_zgv=m
 # CONFIG_PACKAGE_zimreader is not set
 CONFIG_PACKAGE_zipit-base-files=y
 # CONFIG_PACKAGE_zsh is not set
