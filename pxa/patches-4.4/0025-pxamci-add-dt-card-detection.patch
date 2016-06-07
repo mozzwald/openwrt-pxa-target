@@ -1,0 +1,39 @@
+diff --git a/include/linux/platform_data/mmc-pxamci.h b/include/linux/platform_data/mmc-pxamci.h
+index 1706b35..cefd3fa 100644
+--- a/include/linux/platform_data/mmc-pxamci.h
++++ b/include/linux/platform_data/mmc-pxamci.h
+@@ -15,6 +15,7 @@ struct pxamci_platform_data {
+ 	int (*setpower)(struct device *, unsigned int);
+ 	void (*exit)(struct device *, void *);
+ 	int gpio_card_detect;			/* gpio detecting card insertion */
++	int gpio_card_detect_invert;			/* gpio active high card detection */
+ 	int gpio_card_ro;			/* gpio detecting read only toggle */
+ 	bool gpio_card_ro_invert;		/* gpio ro is inverted */
+ 	int gpio_power;				/* gpio powering up MMC bus */
+
+diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
+index 38dfbf6..10e8e44 100644
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -634,6 +634,11 @@ static int pxamci_of_init(struct platform_device *pdev)
+ 
+ 	pdata->gpio_card_detect =
+ 		of_get_named_gpio(np, "cd-gpios", 0);
++	if (of_find_property(np, "cd-invert", NULL)){
++		pdata->gpio_card_detect_invert = true;
++	} else {
++		pdata->gpio_card_detect_invert = false;
++	}
+ 	pdata->gpio_card_ro =
+ 		of_get_named_gpio(np, "wp-gpios", 0);
+ 
+@@ -840,7 +845,8 @@ static int pxamci_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed requesting gpio_cd %d\n", gpio_cd);
+ 		goto out;
+-	}
++	} else if(host->pdata->gpio_card_detect_invert)
++		mmc->caps2 |= MMC_CAP2_CD_ACTIVE_HIGH;
+ 
+ 	if (host->pdata && host->pdata->init)
+ 		host->pdata->init(&pdev->dev, pxamci_detect_irq, mmc);

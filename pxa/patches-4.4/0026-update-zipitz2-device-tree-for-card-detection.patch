@@ -1,0 +1,14 @@
+diff --git a/arch/arm/boot/dts/zipit-z2.dts b/arch/arm/boot/dts/zipit-z2.dts
+index 1823921..ac5cc34 100644
+--- a/arch/arm/boot/dts/zipit-z2.dts
++++ b/arch/arm/boot/dts/zipit-z2.dts
+@@ -120,7 +120,8 @@
+ 		};
+ 		mmc0: mmc@41100000 {
+ 			pxa-mmc,detect-delay-ms = <200>;
+-			//cd-gpios = <&gpio 96 GPIO_ACTIVE_HIGH>;
++			cd-gpios = <&gpio 96 GPIO_ACTIVE_HIGH>;
++			cd-invert;
+ 			status = "okay";
+ 		};
+ 		uart0: uart@40100000 {
