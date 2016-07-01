@@ -1,3 +1,5 @@
+### NOTE: this repo is deprecated and has moved to [https://github.com/openwrt-zipit/openwrt-pxa-target](https://github.com/openwrt-zipit/openwrt-pxa-target)
+
 # openwrt-pxa-target
 This target feed adds support for the Zipit Z2 (pxa) platform to openwrt. It has been tested with openwrt trunk as of commit [1e22c9b9eb691878156dfe32fb1e117737f1d248](https://github.com/openwrt/openwrt/commit/1e22c9b9eb691878156dfe32fb1e117737f1d248)
 
